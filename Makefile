@@ -1,15 +1,26 @@
+PROJECT = game
+
 CXX = g++
-CXXFLAGS = -Wall -g
-TESTFLAGS = -lgtest -lgmock -pthread
+CXXFLAGS = -I. -ICards -ICore -ICore/events -IData -IPlayers -ISystems -IUI
+LDIR = ../lib
+LIBS = -lm
 
-TEST_SRC = tests/test.cpp
-TEST_TARGET = test-game
+SRC_DIRS = Cards Core Core/events Data Players Systems UI
+SRCS = main.cpp $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
+OBJS = $(SRCS:.cpp=.o)
 
-all: test
+.PHONY: all clean cleanall
 
-test: $(TEST_SRC)
-	$(CXX) $(TEST_SRC) $(CXXFLAGS) -o $(TEST_TARGET) $(TESTFLAGS)
+all: $(PROJECT)
+
+$(PROJECT): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(TEST_TARGET)
+	rm -f $(foreach dir,$(SRC_DIRS),$(dir)/*.o) main.o *~ core
 
+cleanall: clean
+	rm -f $(PROJECT)
