@@ -1,26 +1,23 @@
+
 #ifndef TURNMANAGER_H
 #define TURNMANAGER_H
 
 #include <vector>
-#include <memory>
 #include "../Players/Player.h"
 
 class TurnManager {
 private:
-    Player* currentTurn;
-    std::vector<Player*> turnOrder;
+    std::vector<Player*> players;
+    size_t currentPlayerIndex;
     int turnCount;
-
+    void updateManaForNewRound();
 public:
-
     TurnManager(const std::vector<Player*>& order);
-
-    void nextTurn();
-
+    void endTurn();
     Player* getCurrentPlayer() const;
-
-
     int getTurnCount() const;
+    bool isNewRound() const;
+    bool isPlayerTurn() const;
 };
 
 #endif

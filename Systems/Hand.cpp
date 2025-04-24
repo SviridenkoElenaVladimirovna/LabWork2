@@ -15,7 +15,10 @@ std::unique_ptr<Card> Hand::playCard(size_t index) {
     cards.erase(cards.begin() + index);
     return card;
 }
-
+void Hand::removeCard(size_t index) {
+    if (index >= cards.size()) return;
+    cards.erase(cards.begin() + index);
+}
 std::vector<size_t> Hand::getPlayableCardsIndices(int currentMana) const {
     std::vector<size_t> indices;
     for (size_t i = 0; i < cards.size(); ++i) {

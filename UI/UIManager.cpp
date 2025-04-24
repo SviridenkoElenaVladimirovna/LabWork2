@@ -183,8 +183,17 @@ void UIManager::displayBattlefield(const std::vector<std::unique_ptr<UnitCard>>&
 
     for (size_t i = 0; i < units.size(); ++i) {
         std::cout << i+1 << ". ";
-        units[i]->displayInfo();
-        std::cout << "\n";
+        if (!units[i]) {
+            std::cout << "[CORRUPTED UNIT]\n";
+            continue;
+        }
+        try {
+            units[i]->displayInfo();
+            std::cout << (units[i]->isExhausted() ? " [Exhausted]" : " [Ready]");
+            std::cout << "\n";
+        } catch (...) {
+            std::cout << "[DISPLAY ERROR]\n";
+        }
     }
 }
 

@@ -1,31 +1,32 @@
 #include "TurnManager.h"
-#include <algorithm> 
-
-#include "TurnManager.h"
+#include <algorithm>
 
 TurnManager::TurnManager(const std::vector<Player*>& order)
-        : turnOrder(order),
-          currentTurn(order.empty() ? nullptr : order[0]),
-          turnCount(1)
-{
-}
+        : players(order), currentPlayerIndex(0), turnCount(1) {}
 
-void TurnManager::nextTurn() {
-    if (turnOrder.empty()) return;
+void TurnManager::endTurn() {
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
 
-    turnCount++;
-    auto it = std::find(turnOrder.begin(), turnOrder.end(), currentTurn);
-    if (it == turnOrder.end() || ++it == turnOrder.end()) {
-        currentTurn = turnOrder[0];
-    } else {
-        currentTurn = *it;
+    if (currentPlayerIndex == 0) {
+        turnCount++;
+        for (auto player : players) {
+            if (player) {
+                int newMaxMana = std::min(player->getMaxMana() + 1, 10);
+                player->setMaxMana(newMaxMana);
+                player->setMana(newMaxMana);
+            }
+        }
     }
 }
 
 Player* TurnManager::getCurrentPlayer() const {
-    return currentTurn;
+    return players.empty() ? nullptr : players[currentPlayerIndex];
 }
 
 int TurnManager::getTurnCount() const {
     return turnCount;
+}
+
+bool TurnManager::isPlayerTurn() const {
+    return currentPlayerIndex == 0;
 }

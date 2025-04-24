@@ -78,7 +78,6 @@ public:
     void startGame();
     void playerTurn();
     void handleAiTurn();
-
     void displayGameState() const;
 
 };

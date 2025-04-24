@@ -1,8 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../Cards/UnitCard.h"
 #include "../Cards/Card.h"
+#include "../Cards/UnitCard.h"
 #include "../Systems/Deck.h"
 #include "../Systems/Hand.h"
 #include "../Core/events/GameEvent.h"
@@ -35,21 +35,31 @@ protected:
 public:
     Player(const std::string& name, int health, int mana, GameState* gameState);
     virtual ~Player();
+    void setMaxMana(int newMaxMana) {
+        maxMana = newMaxMana;
+        mana = std::min(mana, maxMana);
+    }
 
+    void setMana(int newMana) {
+        mana = std::min(newMana, maxMana);
+    }
+    void playUnitCard(std::unique_ptr<Card> card);
+
+    void playUnitCard(std::unique_ptr<UnitCard> unit) {
+        playUnitCard(std::unique_ptr<Card>(unit.release()));
+    }
     std::vector<std::unique_ptr<UnitCard>>& getBattlefield() { return battlefield; }
     const std::vector<std::unique_ptr<UnitCard>>& getBattlefield() const { return battlefield; }
     const Hand& getHand() const { return hand; }
     Hand& getHandRef() { return hand; }
-
+    int getMaxMana() const { return maxMana; }
+    int getMana() const { return mana; }
     virtual void attackWithUnit(size_t attackerIndex, size_t targetIndex);
     void addToBattlefield(std::unique_ptr<UnitCard> unit);
     void playCard(size_t index);
-    void playUnitCard(std::unique_ptr<UnitCard> card);
     virtual void startTurn();
     bool isDefeated() const { return health <= 0; }
     void setInitialMana(int mana);
-    int getMana() const { return mana; }
-    int getMaxMana() const { return maxMana; }
     void spendMana(int amount) { mana -= amount; }
     void incrementMana(int amount) { mana += amount; }
     bool canAttack() const;
@@ -65,7 +75,6 @@ public:
     void removeDeadUnits();
     int getAttackCost(const UnitCard& unit) const;
     void displayHealthStatus() const;
-    void setMana(int value) { mana = std::min(value, maxMana); }
     virtual void attack(int attackerIndex, int targetIndex) {}
     const std::string& getName() const { return name; }
     int getHealth() const { return health; }

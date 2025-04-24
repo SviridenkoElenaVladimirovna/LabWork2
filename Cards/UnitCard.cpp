@@ -14,8 +14,9 @@ bool UnitCard::canAttackNow() const {
 void UnitCard::setExhausted(bool value) { exhausted = value; }
 
 void UnitCard::play(Player* owner, Player* opponent) {
-   
-        owner->playUnitCard(std::make_unique<UnitCard>(name, cost, attack, health, hasAbility));
+    if (!owner) return;
+    auto cardCopy = this->clone();
+    owner->playUnitCard(std::move(cardCopy));
 }
 std::string UnitCard::getDescription() const {
     return name + " (" + std::to_string(attack) + "/" + std::to_string(health) + ")";
@@ -28,9 +29,8 @@ void UnitCard::displayInfo() const {
         std::cout << " [Ability]";
     }
 }
-
 std::unique_ptr<Card> UnitCard::clone() const {
-    return std::make_unique<UnitCard>(name, cost, attack, health, hasAbility);
+    return std::make_unique<UnitCard>(*this);  
 }
 
 bool UnitCard::isDead() const { return health <= 0; }

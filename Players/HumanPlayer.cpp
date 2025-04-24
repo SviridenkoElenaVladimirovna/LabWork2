@@ -6,6 +6,11 @@
 #include <chrono>
 #include <thread>
 #include "../UI/InputHandler.h"
+
+
+HumanPlayer::HumanPlayer(const std::string& name, int health, int mana, GameState* gameState) :
+        Player(name, health, mana, gameState) {}
+
 bool HumanPlayer::hasPlayableCards() const {
     const auto& cards = getHand().getCards();
     return std::any_of(cards.begin(), cards.end(),
@@ -39,9 +44,42 @@ void HumanPlayer::handlePlayCard() {
 
     playCard(cardIndex);
     ui->showCardPlayedMessage(cardName, isSpell);
-    ui->showAvailableActions(this);
 }
+void HumanPlayer::takeTurn() {
+    GameEngine* gameEngine = dynamic_cast<GameEngine*>(getGameState());
+    if (!gameEngine) return;
 
+    UIManager* ui = gameEngine->getUIManager();
+    bool turnEnded = false;
+
+    while (!turnEnded && !gameEngine->isGameOver()) {
+        std::vector<std::pair<UiActionsEnum, std::string>> options = ui->buildPlayerActions(this);
+        UiActionsEnum choice = ui->showActionMenu(options);
+
+        switch (choice) {
+            case UiActionsEnum::PLAY_CARD:
+                handlePlayCard();
+                break;
+            case UiActionsEnum::ATTACK:
+                handleAttack();
+                break;
+            case UiActionsEnum::SHOW_BOARD:
+                gameEngine->showBoardState();
+                break;
+            case UiActionsEnum::SETTINGS:
+                gameEngine->showSettingsMenu();
+                gameEngine->displayGameState();
+                break;
+            case UiActionsEnum::END_TURN:
+                turnEnded = true;
+                break;
+            default:
+                ui->displayMessage("Wrong choice!");
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                break;
+        }
+    }
+}
 void HumanPlayer::handleAttack() {
     auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
     if (!gameEngine) return;
@@ -94,46 +132,6 @@ void HumanPlayer::handleAttack() {
     ui->displayBattleResults(result);
     gameEngine->updateState();
 }
-void HumanPlayer::takeTurn() {
-    GameEngine* gameEngine = dynamic_cast<GameEngine*>(getGameState());
-    if (!gameEngine) return;
-
-    UIManager* ui = gameEngine->getUIManager();
-    bool turnEnded = false;
-
-    while (!turnEnded && !gameEngine->isGameOver()) {
-        std::vector<std::pair<UiActionsEnum, std::string>> options = ui->buildPlayerActions(this);
-
-        UiActionsEnum choice = ui->showActionMenu(options);
-
-        switch (choice) {
-            case UiActionsEnum::PLAY_CARD:
-                handlePlayCard();
-                gameEngine->displayGameState();
-                break;
-            case UiActionsEnum::ATTACK:
-                handleAttack();
-                gameEngine->displayGameState();
-                break;
-            case UiActionsEnum::SHOW_BOARD:
-                gameEngine->showBoardState();
-                break;
-            case UiActionsEnum::SETTINGS:
-                gameEngine->showSettingsMenu();
-                gameEngine->displayGameState();
-                break;
-            case UiActionsEnum::END_TURN:
-                turnEnded = true;
-                break;
-            default:
-                ui->displayMessage("Wrong choice!");
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                break;
-        }
-    }
-}
-HumanPlayer::HumanPlayer(const std::string& name, int health, int mana, GameState* gameState) :
-        Player(name, health, mana, gameState) {}
 
 void HumanPlayer::startTurn() {
     Player::startTurn();

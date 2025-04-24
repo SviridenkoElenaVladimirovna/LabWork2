@@ -40,29 +40,34 @@ void GameEngine::startGame() {
 
     initializeGame();
 
+    while (!isGameOver()) {
+        if (currentPlayer == players[0].get()) {
+            displayGameState();
+            handleHumanTurn();
+        } else {
+            uiManager->displayHighlightedMessage("THE ENEMY'S MOVE [" + currentPlayer->getName() + "]");
+            currentPlayer->startTurn();
+            currentPlayer->takeTurn();
+        }
 
-    do {
-        displayGameState();
-        handleHumanTurn();
-        handleAiTurn();
-        turnCount++;
-          } while (!isGameOver());
+        turnManager->endTurn();
+        currentPlayer = turnManager->getCurrentPlayer();
+    }
+
     checkGameOver();
 }
 
-void GameEngine::handleAiTurn() {
-    currentPlayer = dynamic_cast<AI*>(players[1].get());
-    if (!currentPlayer) return;
-    uiManager->displayHighlightedMessage("THE ENEMY'S MOVE [" + currentPlayer->getName() + "]");
 
+void GameEngine::handleHumanTurn() {
     currentPlayer->startTurn();
-    currentPlayer->drawCard();
     currentPlayer->takeTurn();
-
-    uiManager->displayHighlightedMessage("The enemy has completed the move.");
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 }
 
+void GameEngine::handleAiTurn() {
+    uiManager->displayHighlightedMessage("THE ENEMY'S MOVE [" + currentPlayer->getName() + "]");
+    currentPlayer->startTurn();
+    currentPlayer->takeTurn();
+}
 void GameEngine::showSettingsMenu() {
     while (true) {
         uiManager->displayHighlightedMessage("SETTINGS");
@@ -125,31 +130,6 @@ void GameEngine::initializeGame() {
     currentPlayer = turnManager->getCurrentPlayer();
 }
 
-void GameEngine::nextTurn() {
-    turnManager->nextTurn();
-    currentPlayer = turnManager->getCurrentPlayer();
-    turnCount = turnManager->getTurnCount();
-
-    currentPlayer->startTurn();
-    currentPlayer->drawCard();
-
-    if (currentPlayer != players[0].get()) {
-        handleAiTurn();
-        nextTurn();
-    }
-    displayGameState();
-}
-
-
-void GameEngine::handleHumanTurn() {
-    currentPlayer = dynamic_cast<HumanPlayer*>(players[0].get());
-    if (!currentPlayer) return;
-
-    currentPlayer->startTurn();
-    currentPlayer->drawCard();
-    currentPlayer->takeTurn();
-}
-
 void GameEngine::handleAttack() {
     if (auto* humanPlayer = dynamic_cast<HumanPlayer*>(players[0].get())) {
         humanPlayer->handleAttack();
@@ -167,15 +147,12 @@ void GameEngine::addAIPlayer(int difficulty) {
         case 3: players.emplace_back(new HardAI("Hard AI", 30, 1, static_cast<GameState*>(this))); break;
     }
 }
-
-
-
 void GameEngine::displayGameState() const {
     Player* human = players[0].get();
     Player* opponent = players[1].get();
 
     if (uiManager) {
-        uiManager->displayGameState(human, opponent, turnCount);
+        uiManager->displayGameState(human, opponent, turnManager->getTurnCount());
     }
 }
 

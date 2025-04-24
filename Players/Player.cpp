@@ -47,23 +47,22 @@ void Player::playCard(size_t index) {
             throw std::runtime_error("Incorrect card index");
         }
 
-        auto card = std::move(hand.playCard(index));
-        if (!card) {
-            throw std::runtime_error("Failed to play a card");
-        }
-
+        auto& card = hand.getCards()[index];
         if (card->getCost() > mana) {
-            hand.addCard(std::move(card));
             throw std::runtime_error("Not enough mana");
         }
-
-        mana -= card->getCost();
-        logEvent("Card", "plays out " + card->getName());
-        if (gameState) {
-            gameState->getGameHistory().recordEvent(GameEvent::of(EventType::CARD, "Player " + name + " plays " + card->getName()));
-        }
+        std::string cardName = card->getName();
 
         card->play(this, opponent);
+
+        mana -= card->getCost();
+
+        hand.removeCard(index);
+
+        logEvent("Card", "plays out " + cardName);
+        if (gameState) {
+            gameState->getGameHistory().recordEvent(GameEvent::of(EventType::CARD, "Player " + name + " plays " + cardName));
+        }
     } catch (const std::exception& e) {
         logEvent("Error", e.what());
         if (gameState) {
@@ -71,25 +70,22 @@ void Player::playCard(size_t index) {
         }
     }
 }
+void Player::playUnitCard(std::unique_ptr<Card> card) {
 
-void Player::playUnitCard(std::unique_ptr<UnitCard> card) {
-    if (mana >= card->getCost()) {
-        mana -= card->getCost();
-        card->onPlay();
-        battlefield.push_back(std::move(card));
+    if (auto unit = dynamic_cast<UnitCard*>(card.get())) {
+        if (mana >= card->getCost()) {
+            mana -= card->getCost();
+            unit->onPlay();
+      
+            battlefield.push_back(std::unique_ptr<UnitCard>(static_cast<UnitCard*>(card.release())));
+            logEvent("Play", "Played unit: " + battlefield.back()->getName());
+        }
+    } else {
+        logEvent("Error", "Attempt to play non-unit card as unit");
     }
 }
-
 void Player::startTurn() {
-    if (maxMana < 10) {
-        maxMana++;
-    }
-
-    gameState->getGameHistory().recordEvent(GameEvent::of(EventType::SYSTEM, "Player " + getName() + " increased mana to " + std::to_string(getMana())));
-
-    mana = maxMana;
-
-    for (const auto& unit : battlefield) {
+    for (auto& unit : battlefield) {
         unit->refresh();
     }
 }

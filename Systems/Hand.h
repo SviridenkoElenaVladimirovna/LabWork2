@@ -10,7 +10,7 @@ private:
     std::vector<std::unique_ptr<Card>> cards;
 public:
     ~Hand() = default;
-
+    void removeCard(size_t index);
     std::unique_ptr<Card> playCard(size_t index);
 
     std::vector<std::unique_ptr<Card>>& getCardsRef() { return cards; }
