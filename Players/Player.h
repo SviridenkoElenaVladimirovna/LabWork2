@@ -4,6 +4,7 @@
 #include "../Cards/Card.h"
 #include "../Cards/UnitCard.h"
 #include "../Systems/Deck.h"
+#include "../Systems/BattleSystem.h"
 #include "../Systems/Hand.h"
 #include "../Core/events/GameEvent.h"
 #include <vector>
@@ -13,7 +14,7 @@
 #include "../Core/GameState.h"
 
 class GameState;
-class BattleSystem;
+
 
 class Player {
 protected:
@@ -54,9 +55,11 @@ public:
     Hand& getHandRef() { return hand; }
     int getMaxMana() const { return maxMana; }
     int getMana() const { return mana; }
-    virtual void attackWithUnit(size_t attackerIndex, size_t targetIndex);
+    virtual BattleSystem::BattleResult attackWithUnit(size_t attackerIndex, size_t targetIndex);
     void addToBattlefield(std::unique_ptr<UnitCard> unit);
     void playCard(size_t index);
+    void performAttack(size_t attackerIndex, size_t targetIndex);
+    bool canAffordAttack() const;
     virtual void startTurn();
     bool isDefeated() const { return health <= 0; }
     void setInitialMana(int mana);

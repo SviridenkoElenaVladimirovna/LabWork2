@@ -142,9 +142,16 @@ void GameEngine::addHumanPlayer(const std::string& name, int health, int mana) {
 
 void GameEngine::addAIPlayer(int difficulty) {
     switch(difficulty) {
-        case 1: players.emplace_back(new EasyAI("Easy AI", 30, 1, static_cast<GameState*>(this))); break;
-        case 2: players.emplace_back(new MediumAI("Medium AI", 30, 1, static_cast<GameState*>(this))); break;
-        case 3: players.emplace_back(new HardAI("Hard AI", 30, 1, static_cast<GameState*>(this))); break;
+        case 1:
+            players.emplace_back(new EasyAI("Easy AI", 30, 1, static_cast<GameState*>(this), uiManager.get()));
+
+            break;
+        case 2:
+            players.emplace_back(new MediumAI("Medium AI", 30, 1, static_cast<GameState*>(this), uiManager.get()));
+            break;
+        case 3:
+            players.emplace_back(new HardAI("Hard AI", 30, 1, static_cast<GameState*>(this), uiManager.get()));
+            break;
     }
 }
 void GameEngine::displayGameState() const {

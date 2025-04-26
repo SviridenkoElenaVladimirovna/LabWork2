@@ -5,7 +5,7 @@
 
 class EasyAI : public AI {
 public:
-    EasyAI(const std::string& name, int health, int mana, GameState* gameState);
+    EasyAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
     virtual ~EasyAI() = default;
 
     void takeTurn() override;

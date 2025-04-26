@@ -1,11 +1,10 @@
 
-#pragma once
 #include "AI.h"
 #include <vector>
 
 class HardAI : public AI {
 public:
-    HardAI(const std::string& name, int health, int mana, GameState* gameState);
+    HardAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
 
     void takeTurn() override;
 

@@ -3,12 +3,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
-#include <memory>
 
-#include "../Core/GameState.h"
 
-EasyAI::EasyAI(const std::string& name, int health, int mana, GameState* gameState)
-        : AI(name, health, mana, gameState) {}
+EasyAI::EasyAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
+        : AI(name, health, mana, gameState, uiManager) {}
 
 int EasyAI::chooseAttackTarget(int attackingUnitIndex) const {
     if (!getOpponent() || attackingUnitIndex < 0 ||
@@ -71,7 +69,9 @@ UnitCard* EasyAI::findWeakestEnemy() const {
 }
 
 void EasyAI::takeTurn() {
-    std::cout << getName() << " makes a move...\n";
+    if (ui) {
+        ui->displayMessage(getName() + " makes a move...");
+    }
 
     while (hasPlayableCards()) {
         int cardIndex = chooseCardToPlay();
@@ -84,15 +84,10 @@ void EasyAI::takeTurn() {
         int unitIndex = chooseUnitToAttackWith();
         if (unitIndex == -1) break;
 
-        int targetIndex = chooseAttackTarget(unitIndex);
-        if (targetIndex >= 0) {
-            getBattlefield()[unitIndex]->attackTarget(
-                    getOpponent()->getBattlefield()[targetIndex].get());
-        } else {
-            getBattlefield()[unitIndex]->attackPlayer(getOpponent());
-        }
+        attackWithUnit(unitIndex);
     }
 
-    std::cout << getName() << " completes the move.\n";
+    if (ui) {
+        ui->displayMessage(getName() + " completes the move.");
+    }
 }
-

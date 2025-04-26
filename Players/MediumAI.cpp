@@ -5,8 +5,8 @@
 #include <iostream>
 #include <climits>
 
-MediumAI::MediumAI(const std::string& name, int health, int mana, GameState* gameState)
-        : AI(name, health, mana, gameState) {}
+MediumAI::MediumAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
+        : AI(name, health, mana, gameState, uiManager) {}
 
 int MediumAI::chooseAttackTarget(int attackingUnitIndex) const {
     auto attacker = getBattlefield()[attackingUnitIndex].get();

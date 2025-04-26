@@ -8,8 +8,9 @@
 
 #include "../Systems/BattleSystem.h"
 
-HardAI::HardAI(const std::string& name, int health, int mana, GameState* gameState)
-        : AI(name, health, mana, gameState) {}
+HardAI::HardAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
+        : AI(name, health, mana, gameState, uiManager) {}
+
 
 int HardAI::chooseAttackTarget(int attackingUnitIndex) const {
     auto attacker = getBattlefield()[attackingUnitIndex].get();

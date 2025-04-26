@@ -30,7 +30,7 @@ void UnitCard::displayInfo() const {
     }
 }
 std::unique_ptr<Card> UnitCard::clone() const {
-    return std::make_unique<UnitCard>(*this);  
+    return std::make_unique<UnitCard>(*this);
 }
 
 bool UnitCard::isDead() const { return health <= 0; }

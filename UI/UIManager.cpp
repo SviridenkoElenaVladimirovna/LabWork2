@@ -48,7 +48,7 @@ UiActionsEnum UIManager::showActionMenu(const std::vector<std::pair<UiActionsEnu
 }
 
 void UIManager::displayGameState(Player* currentPlayer, Player* opponent, int turnNumber) {
-    std::cout << "******* TURN: " << turnNumber << " *******\n";
+    std::cout << "\n******* TURN: " << turnNumber << " *******\n";
 
     std::cout << "=== OPPONENT === [" << opponent->getName() << "]\n";
     displayPlayerInfo(opponent);
@@ -268,11 +268,16 @@ void UIManager::displayBattleResults(const BattleSystem::BattleResult& result) {
     std::cout << result.attackerName << " attacked " << result.defenderName
               << " and dealt " << result.damageDealt << " damage\n";
 
+    if (result.counterDamage > 0) {
+        std::cout << result.defenderName << " counterattacked for "
+                  << result.counterDamage << " damage\n";
+    }
+
     if (result.defenderDestroyed) {
         std::cout << result.defenderName << " was destroyed!\n";
     }
     if (result.attackerDestroyed) {
-        std::cout << result.attackerName << " died in counterattack!\n";
+        std::cout << result.attackerName << " was destroyed!\n";
     }
 
     std::cout << "=====================\n";

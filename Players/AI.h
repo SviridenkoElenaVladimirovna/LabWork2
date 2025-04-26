@@ -2,11 +2,12 @@
 #define AI_H
 
 #include "Player.h"
+#include "../UI/UIManager.h"
 #include <vector>
 
 class AI : public Player {
 public:
-    AI(const std::string& name, int health, int mana, GameState* gameState);
+    AI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
     virtual ~AI() = default;
     virtual void takeTurn() override;
 
@@ -16,14 +17,13 @@ public:
     virtual int chooseAttackTarget(int attackingUnitIndex) const;
 
 protected:
-
+    UIManager* ui;
     virtual bool shouldPlayCard(const Card* card) const { return true; }
     virtual UnitCard* findWeakestEnemy() const;
     virtual UnitCard* findStrongestEnemy() const;
     virtual UnitCard* findBestAttackTarget(UnitCard* attacker) const;
 
     void attackWithUnit(int unitIndex);
-    void cleanDeadUnits();
 };
 
 #endif

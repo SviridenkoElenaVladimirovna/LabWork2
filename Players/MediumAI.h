@@ -1,11 +1,10 @@
 
-#pragma once
 #include "AI.h"
 #include <memory>
 
 class MediumAI : public AI {
 public:
-    MediumAI(const std::string& name, int health, int mana, GameState* gameState);
+    MediumAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
 
     void takeTurn() override;
 

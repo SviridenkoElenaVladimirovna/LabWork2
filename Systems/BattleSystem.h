@@ -12,9 +12,10 @@ public:
     struct BattleResult {
         std::string attackerName;
         std::string defenderName;
-        int damageDealt;
-        bool defenderDestroyed;
-        bool attackerDestroyed;
+        int damageDealt = 0;
+        int counterDamage = 0;
+        bool defenderDestroyed = false;
+        bool attackerDestroyed = false;
     };
 
     explicit BattleSystem(GameState* state);

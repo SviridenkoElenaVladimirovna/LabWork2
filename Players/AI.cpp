@@ -1,8 +1,10 @@
 #include <algorithm>
 #include "AI.h"
 #include "../Core/GameState.h"
-AI::AI(const std::string& name, int health, int mana, GameState* gameState)
-        : Player(name, health, mana, gameState) {}
+
+AI::AI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
+        : Player(name, health, mana, gameState), ui(uiManager) {}
+
 
 void AI::takeTurn() {
     while (hasPlayableCards()) {
@@ -22,17 +24,36 @@ void AI::takeTurn() {
 
     endTurn();
 }
-
 void AI::attackWithUnit(int unitIndex) {
-    int targetIndex = chooseAttackTarget(unitIndex);
-    if (targetIndex >= 0) {
-        getBattlefield()[unitIndex]->attackTarget(
-                getOpponent()->getBattlefield()[targetIndex].get());
-    } else {
-        getBattlefield()[unitIndex]->attackPlayer(getOpponent());
+    if (unitIndex < 0 || unitIndex >= static_cast<int>(getBattlefield().size())) {
+        return;
     }
-    cleanDeadUnits();
+
+    auto& attacker = getBattlefield()[unitIndex];
+    if (!attacker || !attacker->canAttackNow()) {
+        return;
+    }
+
+    int targetIndex = chooseAttackTarget(unitIndex);
+    BattleSystem::BattleResult result;
+
+    if (targetIndex >= 0) {
+        auto& target = getOpponent()->getBattlefield()[targetIndex];
+        if (target) {
+            result = battleSystem->attack(*attacker, *target);
+        }
+    } else {
+        result = battleSystem->attackHero(*attacker, *getOpponent());
+    }
+
+    cleanBattlefield();
+    getOpponent()->cleanBattlefield();
+
+    if (ui) {
+        ui->displayBattleResults(result);
+    }
 }
+
 
 bool AI::hasPlayableCards() const {
     const auto& cards = getHand().getCards();
@@ -79,14 +100,6 @@ int AI::chooseAttackTarget(int attackingUnitIndex) const {
     }
     return -1;
 }
-void AI::cleanDeadUnits() {
-    auto& battlefield = getBattlefield();
-    battlefield.erase(
-            std::remove_if(battlefield.begin(), battlefield.end(),
-                           [](const auto& unit) { return unit->isDead(); }),
-            battlefield.end());
-}
-
 UnitCard* AI::findWeakestEnemy() const {
     const auto& enemies = getOpponent()->getBattlefield();
     if (enemies.empty()) return nullptr;

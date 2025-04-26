@@ -89,7 +89,7 @@ void HumanPlayer::handleAttack() {
 
     std::vector<size_t> canAttackIndices;
     for (size_t i = 0; i < battlefield.size(); ++i) {
-        if (battlefield[i]->canAttackNow() && battlefield[i]->getHealth() > 0) {
+        if (battlefield[i] && battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
             canAttackIndices.push_back(i);
         }
     }
@@ -104,49 +104,28 @@ void HumanPlayer::handleAttack() {
             0, canAttackIndices.size(), "Choose an attacking creature (0 cancel): ");
     if (attackerChoice == 0) return;
 
-    size_t attackerIndex = canAttackIndices[attackerChoice-1];
+    size_t attackerIndex = canAttackIndices[attackerChoice - 1];
     auto* opponent = getOpponent();
-    ui->displayTargetChoice(opponent);
 
+    ui->displayTargetChoice(opponent);
     int targetChoice = gameEngine->getInputHandler().getIntInput(
-            0, opponent->getBattlefield().size()+1, "Select a target (0 cancel): ");
+            0, opponent->getBattlefield().size() + 1, "Select a target (0 cancel): ");
     if (targetChoice == 0) return;
 
-    auto& battleSystem = gameEngine->getBattleSystem();
-    BattleSystem::BattleResult result;
+    size_t targetIndex = targetChoice <= opponent->getBattlefield().size() ? targetChoice - 1 : std::numeric_limits<size_t>::max();
 
-    if (targetChoice <= opponent->getBattlefield().size()) {
-        result = battleSystem.attack(
-                *battlefield[attackerIndex],
-                *opponent->getBattlefield()[targetChoice-1]
-        );
-    } else {
-        result = battleSystem.attackHero(
-                *battlefield[attackerIndex],
-                *opponent
-        );
-    }
+    BattleSystem::BattleResult result = attackWithUnit(attackerIndex, targetIndex);
 
-    cleanBattlefield();
-    opponent->cleanBattlefield();
     ui->displayBattleResults(result);
+
     gameEngine->updateState();
+    gameEngine->showBoardState();
 }
+
 
 void HumanPlayer::startTurn() {
     Player::startTurn();
 }
-
-UiActionsEnum HumanPlayer::getActionChoice(GameEngine& engine) {
-    return engine.showActionMenu({
-                                         {UiActionsEnum::PLAY_CARD, "Play a card"},
-                                         {UiActionsEnum::ATTACK, "Attack"},
-                                         {UiActionsEnum::SHOW_BOARD, "Show the battlefield"},
-                                         {UiActionsEnum::SETTINGS, "Settings"},
-                                         {UiActionsEnum::END_TURN, "Complete the move"},
-                                 });
-}
-
 std::vector<size_t> HumanPlayer::getPlayableCardIndices() const {
     std::vector<size_t> indices;
     const auto& cards = getHand().getCards();

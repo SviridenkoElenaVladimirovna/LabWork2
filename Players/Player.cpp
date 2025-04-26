@@ -21,21 +21,70 @@ void Player::logEvent(const std::string& type, const std::string& details) {
         // gameState->logEvent(type, name + ": " + details);
     }
 }
+void Player::cleanBattlefield() {
+    auto it = std::remove_if(battlefield.begin(), battlefield.end(),
+                             [this](const std::unique_ptr<UnitCard>& unit) {
+                                 if (unit && unit->getHealth() <= 0) {
+                                     logEvent("Battlefield", unit->getName() + " has died and is removed from battlefield");
+                                     if (gameState) {
+                                         gameState->getGameHistory()
+                                                 .recordEvent(
+                                                         GameEvent::of(
+                                                                 EventType::FIGHT,
+                                                                 "Player " + getName() + "'s unit " + unit->getName() + " has died"
+                                                         )
+                                                 );
+                                     }
+                                     return true;
+                                 }
+                                 return false;
+                             }
+    );
+    battlefield.erase(it, battlefield.end());
+}
 
-void Player::attackWithUnit(size_t attackerIndex, size_t targetIndex) {
-    if (attackerIndex >= battlefield.size()) return;
+bool Player::canAffordAttack() const {
+    return mana >= 2;  
+}
+BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t targetIndex) {
+    BattleSystem::BattleResult result;
+
+    if (!canAffordAttack()) {
+        logEvent("Attack", "Not enough mana for attack (need 2)");
+        return result;
+    }
+
+    if (attackerIndex >= battlefield.size()) {
+        logEvent("Attack", "Invalid attacker index");
+        return result;
+    }
+
+    auto& attacker = battlefield[attackerIndex];
+    if (!attacker || !attacker->canAttackNow()) {
+        logEvent("Attack", attacker->getName() + " cannot attack now");
+        return result;
+    }
+
+    mana -= 2;
 
     if (targetIndex == std::numeric_limits<size_t>::max()) {
-        battleSystem->attackHero(*battlefield[attackerIndex], *opponent);
-    }
-    else if (targetIndex < opponent->getBattlefield().size()) {
-        battleSystem->attack(*battlefield[attackerIndex],
-                             *opponent->getBattlefield()[targetIndex]);
+        result = battleSystem->attackHero(*attacker, *opponent);
+    } else if (targetIndex < opponent->getBattlefield().size()) {
+        auto& target = opponent->getBattlefield()[targetIndex];
+        if (target) {
+            result = battleSystem->attack(*attacker, *target);
+        }
     }
 
-    battlefield[attackerIndex]->setExhausted(true);
-    logEvent("attack", battlefield[attackerIndex]->getName() + " attacked");
+    cleanBattlefield();
+    opponent->cleanBattlefield();
+
+    attacker->setExhausted(true);
+    logEvent("Attack", attacker->getName() + " attacked and spent 2 mana");
+
+    return result;
 }
+
 
 void Player::addToBattlefield(std::unique_ptr<UnitCard> unit) {
     battlefield.push_back(std::move(unit));
@@ -76,7 +125,6 @@ void Player::playUnitCard(std::unique_ptr<Card> card) {
         if (mana >= card->getCost()) {
             mana -= card->getCost();
             unit->onPlay();
-      
             battlefield.push_back(std::unique_ptr<UnitCard>(static_cast<UnitCard*>(card.release())));
             logEvent("Play", "Played unit: " + battlefield.back()->getName());
         }
@@ -170,16 +218,6 @@ int Player::heal(int amount) {
 
     return healed;
 }
-
-void Player::cleanBattlefield() {
-    auto& battlefield = getBattlefield();
-    battlefield.erase(
-            std::remove_if(battlefield.begin(), battlefield.end(),
-                           [](const auto& unit) { return unit->getHealth() <= 0; }),
-            battlefield.end()
-    );
-}
-
 void Player::removeDeadUnits() {
     auto it = std::remove_if(
             battlefield.begin(),

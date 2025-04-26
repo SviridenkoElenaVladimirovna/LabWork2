@@ -8,7 +8,6 @@ BattleSystem::BattleSystem(GameState* state) : currentBattleState(state) {}
 
 BattleSystem::~BattleSystem() {
 }
-
 BattleSystem::BattleResult BattleSystem::attack(UnitCard& attacker, UnitCard& target) {
     BattleResult result;
     result.attackerName = attacker.getName();
@@ -26,13 +25,14 @@ BattleSystem::BattleResult BattleSystem::attack(UnitCard& attacker, UnitCard& ta
     result.damageDealt = initialDefenderHealth - target.getHealth();
     result.defenderDestroyed = target.isDead();
 
-    if (!result.defenderDestroyed && target.canAttackNow()) {
+    if (!target.isDead()) {
         int initialAttackerHealth = attacker.getHealth();
         attacker.takeDamage(target.getAttack());
         result.attackerDestroyed = attacker.isDead();
     } else {
         result.attackerDestroyed = false;
     }
+
     attacker.setExhausted(true);
 
     return result;

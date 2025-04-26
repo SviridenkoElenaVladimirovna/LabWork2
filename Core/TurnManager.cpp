@@ -14,7 +14,13 @@ void TurnManager::endTurn() {
                 int newMaxMana = std::min(player->getMaxMana() + 1, 10);
                 player->setMaxMana(newMaxMana);
                 player->setMana(newMaxMana);
+
+                player->drawCard();
             }
+        }
+    } else {
+        if (players[currentPlayerIndex]) {
+            players[currentPlayerIndex]->drawCard();
         }
     }
 }
