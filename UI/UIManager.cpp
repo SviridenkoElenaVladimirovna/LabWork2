@@ -1,6 +1,5 @@
 #include "UIManager.h"
 #include "../Core/GameEngine.h"
-#include "../UI/InputHandler.h"
 #include <iostream>
 #include <thread>
 
@@ -70,27 +69,6 @@ int UIManager::getValidatedChoice(int min, int max, const std::string& prompt) {
     return inputHandler.getIntInput(min, max, prompt);
 }
 
-UiActionsEnum UIManager::showPlayerTurnMenu(const Player* player) {
-    auto options = buildPlayerActions(player);
-    return showActionMenu(options);
-}
-
-void UIManager::displayPlayerInfo(const Player* player) {
-    displayHealthStatus(player->getHealth(), player->getMaxHealth());
-    displayManaStatus(player->getMana(), player->getMaxMana());
-}
-
-int UIManager::showActionMenu(const std::vector<std::string>& options) {
-    displayHighlightedMessage("YOUR TURN");
-    displayMessage("Available actions");
-
-    for (size_t i = 0; i < options.size(); ++i) {
-        displayMessage(std::to_string(i + 1) + ". " + options[i]);
-    }
-
-    return getValidatedChoice(1, options.size(), "Your choice: ");
-}
-
 void UIManager::displayMessage(const std::string& message) {
     std::cout << message << "\n";
 }
@@ -157,11 +135,6 @@ void UIManager::showCardPlayedMessage(const std::string& cardName, bool isSpell)
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 }
 
-void UIManager::showAvailableActions(Player* currentPlayer) {
-    auto options = buildPlayerActions(currentPlayer);
-    showActionMenu(options);
-}
-
 void UIManager::displayPlayerInfo(Player* player) {
     std::cout << "Health: " << player->getHealth() << "/" << player->getMaxHealth() << "\n";
     std::cout << "Mana: " << player->getMana() << "/" << player->getMaxMana() << "\n";
@@ -198,7 +171,7 @@ void UIManager::displayBattlefield(const std::vector<std::unique_ptr<UnitCard>>&
 }
 
 void UIManager::displayBoard(Player* player, Player* opponent) {
-    std::cout << "=== BATTLEFIELD ===" << std::endl;
+    std::cout << "\n=== BATTLEFIELD ===" << std::endl;
     std::cout << "OPPONENT:" << std::endl;
     displayBattlefield(opponent->getBattlefield());
     std::cout << "YOU:" << std::endl;
@@ -206,65 +179,8 @@ void UIManager::displayBoard(Player* player, Player* opponent) {
     std::cout << "----------------------------------------" << std::endl;
 }
 
-int UIManager::selectAttacker(const std::vector<std::unique_ptr<UnitCard>>& units) {
-    std::vector<size_t> availableIndices;
-    for (size_t i = 0; i < units.size(); ++i) {
-        if (units[i]->canAttackNow()) {
-            availableIndices.push_back(i);
-        }
-    }
-
-    if (availableIndices.empty()) {
-        return -1;
-    }
-
-    std::cout << "\nChoose attacking unit:\n";
-    for (size_t i = 0; i < availableIndices.size(); ++i) {
-        size_t idx = availableIndices[i];
-        std::cout << i+1 << ". ";
-        units[idx]->displayInfo();
-        std::cout << "\n";
-    }
-
-    int choice = getValidatedChoice(1, availableIndices.size(), "Your choice (0 to cancel): ");
-    if (choice == 0) return -1;
-
-    return availableIndices[choice-1];
-}
-
-std::pair<int, Player*> UIManager::selectAttackTarget(
-        Player* opponent, const std::vector<std::unique_ptr<UnitCard>>& enemyUnits) {
-
-    std::cout << "\nChoose attack target:\n";
-
-    for (size_t i = 0; i < enemyUnits.size(); ++i) {
-        std::cout << i+1 << ". ";
-        enemyUnits[i]->displayInfo();
-        std::cout << "\n";
-    }
-
-    std::cout << enemyUnits.size()+1 << ". Attack hero ("
-              << opponent->getName() << ")\n";
-
-    int choice = getValidatedChoice(1, enemyUnits.size()+1, "Your choice: ");
-
-    if (choice <= enemyUnits.size()) {
-        return {choice-1, nullptr};
-    } else {
-        return {-1, opponent};
-    }
-}
-
-void UIManager::displayHealthStatus(int health, int maxHealth) {
-    std::cout << "Health: " << health << "/" << maxHealth << "\n";
-}
-
-void UIManager::displayManaStatus(int mana, int maxMana) {
-    std::cout << "Mana: " << mana << "/" << maxMana << "\n";
-}
-
 void UIManager::displayBattleResults(const BattleSystem::BattleResult& result) {
-    std::cout << "=== BATTLE RESULT ===\n";
+    std::cout << "\n=== BATTLE RESULT ===\n";
     std::cout << result.attackerName << " attacked " << result.defenderName
               << " and dealt " << result.damageDealt << " damage\n";
 
@@ -288,4 +204,7 @@ void UIManager::logGameEvents(const std::vector<std::unique_ptr<GameEvent>>& eve
     for (int i = 0; i < events.size(); i++) {
         displayLogMessage(events.at(i)->toString());
     }
+}
+InputHandler& UIManager::getInputHandler() {
+    return inputHandler;
 }

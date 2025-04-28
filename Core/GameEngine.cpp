@@ -129,13 +129,6 @@ void GameEngine::initializeGame() {
 
     currentPlayer = turnManager->getCurrentPlayer();
 }
-
-void GameEngine::handleAttack() {
-    if (auto* humanPlayer = dynamic_cast<HumanPlayer*>(players[0].get())) {
-        humanPlayer->handleAttack();
-    }
-}
-
 void GameEngine::addHumanPlayer(const std::string& name, int health, int mana) {
     players.emplace_back(new HumanPlayer(name, health, mana, static_cast<GameState*>(this)));
 }

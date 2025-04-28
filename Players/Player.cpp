@@ -1,10 +1,7 @@
 #include "Player.h"
-#include "../Core/GameState.h"
-#include "../Cards/SpellCard.h"
 #include <iostream>
 #include <algorithm>
 #include <memory>
-#include "../Systems/BattleSystem.h"
 
 Player::Player(const std::string& name, int health, int mana, GameState* gameState)
         : name(name), health(health), maxHealth(health),
@@ -17,9 +14,6 @@ Player::~Player() {
 
 void Player::logEvent(const std::string& type, const std::string& details) {
     std::cout << "Event: " << "[" << type << "]: "<< details << "\n";
-    if (gameState) {
-        // gameState->logEvent(type, name + ": " + details);
-    }
 }
 void Player::cleanBattlefield() {
     auto it = std::remove_if(battlefield.begin(), battlefield.end(),
@@ -76,19 +70,12 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
         }
     }
 
-    cleanBattlefield();
-    opponent->cleanBattlefield();
-
     attacker->setExhausted(true);
     logEvent("Attack", attacker->getName() + " attacked and spent 2 mana");
 
     return result;
 }
 
-
-void Player::addToBattlefield(std::unique_ptr<UnitCard> unit) {
-    battlefield.push_back(std::move(unit));
-}
 
 void Player::playCard(size_t index) {
     try {
@@ -218,94 +205,66 @@ int Player::heal(int amount) {
 
     return healed;
 }
-void Player::removeDeadUnits() {
-    auto it = std::remove_if(
-            battlefield.begin(),
-            battlefield.end(),
-            [this](const auto &unit) {
-                if (unit->getHealth() <= 0) {
-                    logEvent("Fighting", unit->getName() + " dies");
-                    if (gameState) {
-                        gameState->getGameHistory()
-                                .recordEvent(
-                                        GameEvent::of(
-                                                EventType::FIGHT, "Player's " + getName() + " unit " + unit->getName() + " dies"));
-                    }
-                    return true;
-                }
-                return false;
-            });
-    battlefield.erase(it, battlefield.end());
-}
 
 void Player::displayHealthStatus() const {
     std::cout << "Health: " << health << "/" << maxHealth << "\n";
 }
-
-int Player::getAttackCost(const UnitCard& unit) const {
-    return std::max(1, unit.getAttack() / 2);
+void Player::setMaxMana(int newMaxMana) {
+    maxMana = newMaxMana;
+    mana = std::min(mana, maxMana);
 }
 
-std::vector<UnitCard*> Player::getAttackableUnits() const {
-    std::vector<UnitCard*> attackableUnits;
-    for (const auto& unit : battlefield) {
-        if (unit->canAttackNow() && !unit->isExhausted()) {
-            attackableUnits.push_back(unit.get());
-        }
-    }
-    return attackableUnits;
+void Player::setMana(int newMana) {
+    mana = std::min(newMana, maxMana);
+}
+std::vector<std::unique_ptr<UnitCard>>& Player::getBattlefield() {
+    return battlefield;
 }
 
-int Player::selectAttacker(const std::vector<UnitCard*>& units) const {
-    if (units.empty()) return -1;
-
-    std::cout << "\nChoose an attacking creature:\n";
-    for (size_t i = 0; i < units.size(); ++i) {
-        std::cout << i+1 << ". ";
-        units[i]->displayInfo();
-        std::cout << " (Attack: " << units[i]->getAttack() << ")\n";
-    }
-
-    return getValidatedChoice(1, units.size(), "Your choice: ") - 1;
+const std::vector<std::unique_ptr<UnitCard>>& Player::getBattlefield() const {
+    return battlefield;
 }
 
-std::pair<Card*, Player*> Player::selectAttackTarget(Player* opponent) const {
-    if (!opponent) return {nullptr, nullptr};
-
-    std::cout << "\nSelect the target of the attack:\n";
-
-    const auto& enemyUnits = opponent->getBattlefield();
-    for (size_t i = 0; i < enemyUnits.size(); ++i) {
-        std::cout << i+1 << ". ";
-        enemyUnits[i]->displayInfo();
-        std::cout << "\n";
-    }
-
-    std::cout << enemyUnits.size()+1 << ". Attack the hero ("
-              << opponent->getName() << ")\n";
-
-    int choice = getValidatedChoice(1, enemyUnits.size()+1, "Your choice: ");
-
-    if (choice <= enemyUnits.size()) {
-        return {enemyUnits[choice-1].get(), nullptr};
-    } else {
-        return {nullptr, opponent};
-    }
+const Hand& Player::getHand() const {
+    return hand;
 }
 
-int Player::getValidatedChoice(int min, int max, const std::string& prompt) const {
-    while (true) {
-        std::cout << prompt;
-        std::string input;
-        std::getline(std::cin, input);
+Hand& Player::getHandRef() {
+    return hand;
+}
 
-        try {
-            int choice = std::stoi(input);
-            if (choice >= min && choice <= max) {
-                return choice;
-            }
-        } catch (...) {
-        }
-        std::cout << "Wrong choice. Enter a number from " << min << " to " << max << ".\n";
-    }
+int Player::getMaxMana() const {
+    return maxMana;
+}
+
+int Player::getMana() const {
+    return mana;
+}
+bool Player::isDefeated() const {
+    return health <= 0;
+}
+GameState* Player::getGameState() const {
+    return gameState;
+}
+int Player::getMaxHealth() const {
+    return maxHealth;
+}
+const std::string& Player::getName() const {
+    return name;
+}
+
+int Player::getHealth() const {
+    return health;
+}
+
+Deck& Player::getDeck() {
+    return deck;
+}
+
+Player* Player::getOpponent() const {
+    return opponent;
+}
+
+void Player::setOpponent(Player* newOpponent) {
+    opponent = newOpponent;
 }

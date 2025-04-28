@@ -1,5 +1,4 @@
 #include "EasyAI.h"
-#include "../Cards/UnitCard.h"
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>

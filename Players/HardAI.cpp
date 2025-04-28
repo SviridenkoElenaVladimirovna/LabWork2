@@ -1,12 +1,7 @@
 
 #include "HardAI.h"
-#include "../Cards/UnitCard.h"
-#include "../Cards/SpellCard.h"
-#include <algorithm>
 #include <climits>
 #include <iostream>
-
-#include "../Systems/BattleSystem.h"
 
 HardAI::HardAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : AI(name, health, mana, gameState, uiManager) {}

@@ -2,7 +2,6 @@
 #include "DamageEffect.h"
 #include "UnitCard.h"
 #include "../Players/Player.h"
-#include <iostream>
 
 DamageEffect::DamageEffect(int damage, bool logs)
         : Effect("Damage"), damage(damage), showLogs(logs) {

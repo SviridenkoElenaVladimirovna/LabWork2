@@ -29,7 +29,6 @@ public:
     void attackTarget(UnitCard* target);
     void attackPlayer(Player* player);
     void takeDamage(int damage);
-    void heal(int amount);
     void onPlay();
     void refresh();
 

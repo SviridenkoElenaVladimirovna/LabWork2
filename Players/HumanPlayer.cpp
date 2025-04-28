@@ -1,11 +1,8 @@
 #include "HumanPlayer.h"
-#include "../Core/GameEngine.h"
-#include "../Cards/UnitCard.h"
-#include "../UI/UIManager.h"
 #include <vector>
 #include <chrono>
 #include <thread>
-#include "../UI/InputHandler.h"
+#include "../Cards/SpellCard.h"
 
 
 HumanPlayer::HumanPlayer(const std::string& name, int health, int mana, GameState* gameState) :
@@ -116,10 +113,13 @@ void HumanPlayer::handleAttack() {
 
     BattleSystem::BattleResult result = attackWithUnit(attackerIndex, targetIndex);
 
-    ui->displayBattleResults(result);
-
+    cleanBattlefield();
+    getOpponent()->cleanBattlefield();
     gameEngine->updateState();
-    gameEngine->showBoardState();
+    if (!result.attackedHero) {
+      //  ui->displayBattleResults(result);
+        gameEngine->showBoardState();
+    }
 }
 
 
@@ -136,9 +136,4 @@ std::vector<size_t> HumanPlayer::getPlayableCardIndices() const {
         }
     }
     return indices;
-}
-
-bool HumanPlayer::canAttack() const {
-    return std::any_of(getBattlefield().begin(), getBattlefield().end(),
-                       [](const auto& unit) { return unit->canAttackNow(); });
 }

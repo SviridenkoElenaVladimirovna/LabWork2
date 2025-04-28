@@ -16,6 +16,7 @@ public:
         int counterDamage = 0;
         bool defenderDestroyed = false;
         bool attackerDestroyed = false;
+        bool attackedHero = false;
     };
 
     explicit BattleSystem(GameState* state);

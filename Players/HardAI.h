@@ -1,4 +1,3 @@
-
 #include "AI.h"
 #include <vector>
 

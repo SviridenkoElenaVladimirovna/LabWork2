@@ -53,11 +53,6 @@ void UnitCard::takeDamage(int damage) {
     health -= damage;
     if (health < 0) health = 0;
 }
-
-void UnitCard::heal(int amount) {
-    health += amount;
-}
-
 void UnitCard::onPlay() {
     exhausted = true;
     summonedThisTurn = true;

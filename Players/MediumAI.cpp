@@ -1,7 +1,5 @@
 
 #include "MediumAI.h"
-#include "../Cards/UnitCard.h"
-#include <algorithm>
 #include <iostream>
 #include <climits>
 

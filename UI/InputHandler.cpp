@@ -36,7 +36,6 @@ int InputHandler::getIntInput(int min, int max, const std::string& prompt) const
                 return choice;
             }
         } catch (...) {
-            // Invalid input
         }
 
         std::cout << "Invalid input. Please enter a number between " << min << " and " << max << ".\n";

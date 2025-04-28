@@ -1,6 +1,5 @@
 #include "SpellCard.h"
 #include "../Players/Player.h"
-#include "UnitCard.h"
 #include <iostream>
 
 SpellCard::SpellCard(const std::string& name, int cost, SpellEffect effect, int power)

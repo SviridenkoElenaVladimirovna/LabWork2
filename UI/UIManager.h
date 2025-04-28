@@ -32,12 +32,9 @@ public:
     void displayCards(const std::vector<std::unique_ptr<Card>>& cards);
     void displayBattlefield(const std::vector<std::unique_ptr<UnitCard>>& units);
 
-    UiActionsEnum showPlayerTurnMenu(const Player* player);
-    int showActionMenu(const std::vector<std::string>& options);
     int showCardSelection(const std::vector<std::unique_ptr<Card>>& cards,
                           const std::vector<size_t>& playableIndices);
 
-    int selectAttacker(const std::vector<std::unique_ptr<UnitCard>>& units);
     std::pair<int, Player*> selectAttackTarget(Player* opponent,
                                                const std::vector<std::unique_ptr<UnitCard>>& enemyUnits);
     void displayBattleResults(const BattleSystem::BattleResult& result);
@@ -45,7 +42,6 @@ public:
                               const std::vector<size_t>& canAttackIndices);
     void displayTargetChoice(Player* opponent);
 
-    void displayPlayerInfo(const Player* player);
     void displayPlayerInfo(Player* player);
     void displayHealthStatus(int health, int maxHealth);
     void displayManaStatus(int mana, int maxMana);
@@ -53,12 +49,10 @@ public:
 
 
     void showCardPlayedMessage(const std::string& cardName, bool isSpell);
-    void showAvailableActions(Player* currentPlayer);
 
     int getValidatedChoice(int min, int max, const std::string& prompt);
 
-    GameEngine* getGameState() const { return gameState; }
-    InputHandler& getInputHandler() { return inputHandler; }
+    InputHandler& getInputHandler();
 
     void logGameEvents(const std::vector<std::unique_ptr<GameEvent>>& events);
 };

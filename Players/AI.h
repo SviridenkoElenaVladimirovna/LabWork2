@@ -5,6 +5,8 @@
 #include "../UI/UIManager.h"
 #include <vector>
 
+class GameEngine;
+
 class AI : public Player {
 public:
     AI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);

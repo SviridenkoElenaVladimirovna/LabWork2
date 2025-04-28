@@ -1,6 +1,5 @@
 #include "Hand.h"
 #include <algorithm>
-#include <iostream>
 #include <stdexcept> 
 
 void Hand::addCard(std::unique_ptr<Card> card) {

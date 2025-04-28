@@ -1,6 +1,6 @@
 #include <algorithm>
+#include "../Core/GameEngine.h"
 #include "AI.h"
-#include "../Core/GameState.h"
 
 AI::AI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : Player(name, health, mana, gameState), ui(uiManager) {}
@@ -25,6 +25,7 @@ void AI::takeTurn() {
     endTurn();
 }
 void AI::attackWithUnit(int unitIndex) {
+    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
     if (unitIndex < 0 || unitIndex >= static_cast<int>(getBattlefield().size())) {
         return;
     }
@@ -47,11 +48,13 @@ void AI::attackWithUnit(int unitIndex) {
     }
 
     cleanBattlefield();
-    getOpponent()->cleanBattlefield();
 
-    if (ui) {
-        ui->displayBattleResults(result);
+    getOpponent()->cleanBattlefield();
+    if (!result.attackedHero) {
+       // ui->displayBattleResults(result);
+        gameEngine->showBoardState();
     }
+
 }
 
 

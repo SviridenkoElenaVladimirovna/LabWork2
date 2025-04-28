@@ -1,8 +1,6 @@
 
 #include "BattleSystem.h"
 #include "../Players/Player.h"
-#include "../Core/GameState.h"
-#include "../UI/UIManager.h"
 
 BattleSystem::BattleSystem(GameState* state) : currentBattleState(state) {}
 
@@ -21,27 +19,26 @@ BattleSystem::BattleResult BattleSystem::attack(UnitCard& attacker, UnitCard& ta
     }
 
     int initialDefenderHealth = target.getHealth();
+    int initialAttackerHealth = attacker.getHealth();
+
     target.takeDamage(attacker.getAttack());
+    attacker.takeDamage(target.getAttack());
+
     result.damageDealt = initialDefenderHealth - target.getHealth();
     result.defenderDestroyed = target.isDead();
-
-    if (!target.isDead()) {
-        int initialAttackerHealth = attacker.getHealth();
-        attacker.takeDamage(target.getAttack());
-        result.attackerDestroyed = attacker.isDead();
-    } else {
-        result.attackerDestroyed = false;
-    }
+    result.attackerDestroyed = attacker.isDead();
 
     attacker.setExhausted(true);
 
     return result;
 }
 
+
 BattleSystem::BattleResult BattleSystem::attackHero(UnitCard& attacker, Player& targetPlayer) {
     BattleResult result;
     result.attackerName = attacker.getName();
     result.defenderName = targetPlayer.getName();
+    result.attackedHero = true;
 
     if (!attacker.canAttackNow()) {
         result.damageDealt = 0;

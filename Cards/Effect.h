@@ -15,7 +15,6 @@ public:
     virtual void applyEffect(Card* target) = 0;
     virtual std::string getDescription() const = 0;
 
-    std::string getType() const { return type; }
 
 protected:
     std::string type;
