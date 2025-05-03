@@ -23,7 +23,7 @@ private:
     std::unique_ptr<BattleSystem> battleSystem;
 
     void initializeDecks();
-    bool checkGameOver();
+
     void drawCardForCurrentPlayer();
 
 public:
@@ -57,6 +57,8 @@ public:
     void showSettingsMenu();
     void startGame();
     void displayGameState() const;
+
+    bool checkGameOver();
 };
 
 #endif

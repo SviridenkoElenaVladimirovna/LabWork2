@@ -20,6 +20,8 @@ public:
     std::unique_ptr<Card> clone() const override {
         return std::make_unique<SpellCard>(*this);
     }
+    SpellEffect getEffect() const { return effect; }
+    int getPower() const { return power; }
     void play(Player* owner, Player* opponent) override;
     std::string getDescription() const override;
     void displayInfo() const override;

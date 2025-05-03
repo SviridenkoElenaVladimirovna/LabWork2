@@ -12,6 +12,7 @@ public:
     bool hasPlayableCards() const override;
 
 protected:
+    void playSelectedCard(int cardIndex);
     bool shouldPlayCard(const Card* card) const override;
     int chooseCardToPlay() const override;
     int chooseUnitToAttackWith() const override;

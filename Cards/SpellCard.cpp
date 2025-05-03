@@ -6,8 +6,12 @@ SpellCard::SpellCard(const std::string& name, int cost, SpellEffect effect, int 
         : Card(name, cost, CardType::SPELL), effect(effect), power(power) {}
 
 void SpellCard::play(Player* owner, Player* opponent) {
+    if (!owner || !opponent) {
+        std::cerr << "Error: Null player pointer in spell cast\n";
+        return;
+    }
     std::cout << "A spell is used: " << name << " - ";
-
+    try {
     switch (effect) {
         case SpellEffect::DAMAGE:
             std::cout << "inflicts " << power << " damage!\n";
@@ -19,13 +23,16 @@ void SpellCard::play(Player* owner, Player* opponent) {
                 std::cout << "recovers " << healed << " health.\n";
             break;
         }
-
         case SpellEffect::DRAW: {
             int drawn = 0;
             for (int i = 0; i < power; ++i) {
-                if (owner->drawCard()) drawn++;
+                if (owner->drawCard()) {
+                    drawn++;
+                } else {
+                    break;
+                }
             }
-            std::cout << "taken " << drawn << " maps.\n";
+            std::cout << "Drew " << drawn << " cards.\n";
             break;
         }
 
@@ -35,6 +42,9 @@ void SpellCard::play(Player* owner, Player* opponent) {
                 unit->setAttack(unit->getAttack() + power);
             }
             break;
+    }
+    } catch (const std::exception& e) {
+        std::cerr << "Spell error: " << e.what() << "\n";
     }
 }
 

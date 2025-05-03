@@ -20,7 +20,7 @@ void TurnManager::endTurn() {
         }
     } else {
         if (players[currentPlayerIndex]) {
-            players[currentPlayerIndex]->drawCard();
+            //players[currentPlayerIndex]->drawCard();
         }
     }
 }

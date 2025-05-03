@@ -1,4 +1,6 @@
 #include "Player.h"
+#include "../Core/GameEngine.h"
+#include "../Cards/SpellCard.h"
 #include <iostream>
 #include <algorithm>
 #include <memory>
@@ -80,29 +82,42 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
 void Player::playCard(size_t index) {
     try {
         if (index >= hand.getCards().size()) {
-            throw std::runtime_error("Incorrect card index");
+            throw std::runtime_error("Invalid card index");
         }
 
         auto& card = hand.getCards()[index];
+        if (!card) {
+            throw std::runtime_error("Null card in hand");
+        }
+
         if (card->getCost() > mana) {
             throw std::runtime_error("Not enough mana");
         }
+        if (auto spell = dynamic_cast<SpellCard*>(card.get())) {
+            if (spell->getEffect() == SpellEffect::DRAW && getDeck().isEmpty()) {
+                throw std::runtime_error("Cannot draw - deck is empty");
+            }
+        }
+
         std::string cardName = card->getName();
-
         card->play(this, opponent);
-
         mana -= card->getCost();
-
         hand.removeCard(index);
 
         logEvent("Card", "plays out " + cardName);
         if (gameState) {
-            gameState->getGameHistory().recordEvent(GameEvent::of(EventType::CARD, "Player " + name + " plays " + cardName));
+            gameState->getGameHistory().recordEvent(
+                    GameEvent::of(EventType::CARD,
+                                  "Player " + name + " plays " + cardName)
+            );
         }
     } catch (const std::exception& e) {
         logEvent("Error", e.what());
         if (gameState) {
-            gameState->getGameHistory().recordEvent(GameEvent::of(EventType::SYSTEM, "Exception " + name + ": " + e.what()));
+            gameState->getGameHistory().recordEvent(
+                    GameEvent::of(EventType::SYSTEM,
+                                  "Play card error: " + std::string(e.what()))
+            );
         }
     }
 }
@@ -136,19 +151,24 @@ bool Player::canAttack() const {
     }
     return false;
 }
+bool Player::hasPlayableCards() const {
+    const auto& cards = hand.getCards();
+    return std::any_of(cards.begin(), cards.end(),
+                       [this](const auto& card) {
+                           return card->getCost() <= mana;
+                       });
+}
 
 bool Player::drawCard() {
     if (!deck.isEmpty()) {
         auto card = deck.drawCard();
         if (card) {
+            std::string name = card->getName();
             hand.addCard(std::move(card));
-            const auto& cards = hand.getCards();
-            logEvent("Card", "takes the card: " + cards.back()->getName());
+            logEvent("Card", "takes the card: " + name);
             if (gameState) {
-                gameState->getGameHistory()
-                        .recordEvent(
-                                GameEvent::of(
-                                        EventType::CARD, "Player " + getName() + " has drawn card " + cards.back()->getName()));
+                gameState->getGameHistory().recordEvent(
+                        GameEvent::of(EventType::CARD, "Player " + getName() + " has drawn card " + name));
             }
             return true;
         }
@@ -167,20 +187,29 @@ void Player::endTurn() {
 }
 
 void Player::takeDamage(int amount) {
-    if (amount <= 0) return;
+    if (amount <= 0 || isDefeated()) return;
 
     int oldHealth = health;
     health = std::max(health - amount, 0);
     logEvent("Damage", "gets " + std::to_string(amount) + " damage");
+
     if (gameState) {
-        gameState->getGameHistory()
-                .recordEvent(
-                        GameEvent::of(
-                                EventType::DAMAGE,
-                                "Player " + getName() + " get " + std::to_string(amount) +
-                                " amount of damage (" + std::to_string(oldHealth) + " → " +
-                                std::to_string(health) + ")"));
+        gameState->getGameHistory().recordEvent(
+                GameEvent::of(
+                        EventType::DAMAGE,
+                        "Player " + getName() + " took " + std::to_string(amount) +
+                        " damage (" + std::to_string(oldHealth) + " → " +
+                        std::to_string(health) + ")"
+                )
+        );
+
+        if (health <= 0) {
+            GameEngine* engine = dynamic_cast<GameEngine*>(gameState);
+                engine->checkGameOver();
+
+        }
     }
+
     displayHealthStatus();
 }
 

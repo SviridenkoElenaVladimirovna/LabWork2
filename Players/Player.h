@@ -39,7 +39,6 @@ public:
     void setMaxMana(int newMaxMana);
     void setMana(int newMana);
     void playUnitCard(std::unique_ptr<Card> card);
-
     std::vector<std::unique_ptr<UnitCard>>& getBattlefield();
     const std::vector<std::unique_ptr<UnitCard>>& getBattlefield() const;
     const Hand& getHand() const;

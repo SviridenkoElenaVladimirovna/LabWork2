@@ -1,6 +1,5 @@
 #include "GameEvent.h"
 #include <ctime>
-#include <iomanip>
 #include <sstream>
 
 GameEvent::GameEvent(const std::string& type, const std::string& details)

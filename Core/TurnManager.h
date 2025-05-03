@@ -1,4 +1,3 @@
-
 #ifndef TURNMANAGER_H
 #define TURNMANAGER_H
 

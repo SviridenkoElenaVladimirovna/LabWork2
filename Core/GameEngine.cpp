@@ -49,7 +49,9 @@ void GameEngine::startGame() {
             currentPlayer->startTurn();
             currentPlayer->takeTurn();
         }
-
+        if (isGameOver()) {
+            break;
+        }
         turnManager->endTurn();
         currentPlayer = turnManager->getCurrentPlayer();
     }
@@ -199,11 +201,15 @@ void GameEngine::drawCardForCurrentPlayer() {
 }
 
 bool GameEngine::checkGameOver() {
+    static bool gameOver = false;
+    if (gameOver) return false;
+
     for (const auto& player : players) {
         if (player->getHealth() <= 0) {
             uiManager->displayHighlightedMessage("END OF GAME");
             uiManager->displayMessage(player->getName() + " defeated!");
             uiManager->displayMessage(player->getOpponent()->getName() + " wins!");
+            gameOver = true;
             return true;
         }
     }

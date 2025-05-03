@@ -25,13 +25,12 @@ void AI::takeTurn() {
     endTurn();
 }
 void AI::attackWithUnit(int unitIndex) {
-    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
     if (unitIndex < 0 || unitIndex >= static_cast<int>(getBattlefield().size())) {
         return;
     }
 
-    auto& attacker = getBattlefield()[unitIndex];
-    if (!attacker || !attacker->canAttackNow()) {
+    auto attackerPtr = getBattlefield()[unitIndex].get();
+    if (!attackerPtr || !attackerPtr->canAttackNow()) {
         return;
     }
 
@@ -39,23 +38,23 @@ void AI::attackWithUnit(int unitIndex) {
     BattleSystem::BattleResult result;
 
     if (targetIndex >= 0) {
-        auto& target = getOpponent()->getBattlefield()[targetIndex];
-        if (target) {
-            result = battleSystem->attack(*attacker, *target);
+        auto& targetPtr = getOpponent()->getBattlefield()[targetIndex];
+        if (targetPtr) {
+            result = battleSystem->attack(*attackerPtr, *targetPtr);
         }
     } else {
-        result = battleSystem->attackHero(*attacker, *getOpponent());
+        result = battleSystem->attackHero(*attackerPtr, *getOpponent());
     }
 
     cleanBattlefield();
-
     getOpponent()->cleanBattlefield();
-    if (!result.attackedHero) {
-       // ui->displayBattleResults(result);
+
+    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
+    if (gameEngine && !result.attackedHero) {
         gameEngine->showBoardState();
     }
-
 }
+
 
 
 bool AI::hasPlayableCards() const {

@@ -33,7 +33,6 @@ BattleSystem::BattleResult BattleSystem::attack(UnitCard& attacker, UnitCard& ta
     return result;
 }
 
-
 BattleSystem::BattleResult BattleSystem::attackHero(UnitCard& attacker, Player& targetPlayer) {
     BattleResult result;
     result.attackerName = attacker.getName();
@@ -48,7 +47,7 @@ BattleSystem::BattleResult BattleSystem::attackHero(UnitCard& attacker, Player& 
     int initialHealth = targetPlayer.getHealth();
     targetPlayer.takeDamage(attacker.getAttack());
     result.damageDealt = initialHealth - targetPlayer.getHealth();
-    result.defenderDestroyed = false;
+    result.defenderDestroyed = targetPlayer.isDefeated();
     result.attackerDestroyed = false;
 
     attacker.setExhausted(true);

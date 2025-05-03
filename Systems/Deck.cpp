@@ -52,12 +52,25 @@ void Deck::initializeStandardDeck() {
 void Deck::addCard(std::unique_ptr<Card> card) {
     cards.push_back(std::move(card));
 }
-
 std::unique_ptr<Card> Deck::drawCard() {
-    if (cards.empty()) return nullptr;
-    auto card = std::move(cards.back());
-    cards.pop_back();
-    return card;
+    if (cards.empty()) {
+        return nullptr;
+    }
+
+    try {
+        if (!cards.back() || cards.back()->getName().empty()) {
+            std::cerr << "Warning: Invalid card in deck\n";
+            cards.pop_back();
+            return nullptr;
+        }
+
+        auto card = std::move(cards.back());
+        cards.pop_back();
+        return card;
+    } catch (const std::exception& e) {
+        std::cerr << "Error drawing card: " << e.what() << std::endl;
+        return nullptr;
+    }
 }
 
 void Deck::shuffle() {
