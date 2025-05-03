@@ -40,13 +40,13 @@ void Player::cleanBattlefield() {
 }
 
 bool Player::canAffordAttack() const {
-    return mana >= 2;  
+    return mana >= 2;
 }
 BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t targetIndex) {
     BattleSystem::BattleResult result;
 
     if (!canAffordAttack()) {
-        logEvent("Attack", "Not enough mana for attack (need 2)");
+        logEvent("Attack", "Not enough mana for attack (requires 2)");
         return result;
     }
 
@@ -65,7 +65,8 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
 
     if (targetIndex == std::numeric_limits<size_t>::max()) {
         result = battleSystem->attackHero(*attacker, *opponent);
-    } else if (targetIndex < opponent->getBattlefield().size()) {
+    }
+    else if (targetIndex < opponent->getBattlefield().size()) {
         auto& target = opponent->getBattlefield()[targetIndex];
         if (target) {
             result = battleSystem->attack(*attacker, *target);
@@ -77,7 +78,6 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
 
     return result;
 }
-
 
 void Player::playCard(size_t index) {
     try {
@@ -121,6 +121,7 @@ void Player::playCard(size_t index) {
         }
     }
 }
+
 void Player::playUnitCard(std::unique_ptr<Card> card) {
 
     if (auto unit = dynamic_cast<UnitCard*>(card.get())) {
@@ -144,10 +145,13 @@ void Player::setInitialMana(int mana) {
     this->mana = mana;
     this->maxMana = mana;
 }
-
 bool Player::canAttack() const {
+    if (mana < 2) return false;
+
     for (const auto& unit : battlefield) {
-        if (unit->canAttackNow()) return true;
+        if (unit && unit->canAttackNow() && !unit->isDead()) {
+            return true;
+        }
     }
     return false;
 }

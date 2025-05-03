@@ -15,6 +15,109 @@ bool HumanPlayer::hasPlayableCards() const {
                            return card->getCost() <= getMana() && !card->isPlayed();
                        });
 }
+void HumanPlayer::takeTurn() {
+    GameEngine* gameEngine = dynamic_cast<GameEngine*>(getGameState());
+    if (!gameEngine) return;
+
+    UIManager* ui = gameEngine->getUIManager();
+    bool turnEnded = false;
+
+    while (!turnEnded && !gameEngine->isGameOver()) {
+        gameEngine->showBoardState();
+
+        std::vector<std::pair<UiActionsEnum, std::string>> options = ui->buildPlayerActions(this);
+        UiActionsEnum choice = ui->showActionMenu(options);
+
+        switch (choice) {
+            case UiActionsEnum::PLAY_CARD:
+                handlePlayCard();
+                break;
+
+            case UiActionsEnum::ATTACK:
+                handleAttack();
+                break;
+
+            case UiActionsEnum::SHOW_BOARD:
+                gameEngine->showBoardState();
+                break;
+
+            case UiActionsEnum::SETTINGS:
+                gameEngine->showSettingsMenu();
+                break;
+
+            case UiActionsEnum::END_TURN:
+                turnEnded = true;
+                gameEngine->updateState();
+                break;
+
+            default:
+                ui->displayMessage("Invalid choice!");
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                break;
+        }
+    }
+}
+
+void HumanPlayer::handleAttack() {
+    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
+    if (!gameEngine) return;
+
+    UIManager* ui = gameEngine->getUIManager();
+
+    if (!canAttack()) {
+        ui->displayMessage("Cannot attack - not enough mana or no available units");
+        return;
+    }
+
+    cleanBattlefield();
+    getOpponent()->cleanBattlefield();
+
+    auto& battlefield = getBattlefield();
+    std::vector<size_t> canAttackIndices;
+    for (size_t i = 0; i < battlefield.size(); ++i) {
+        if (battlefield[i] && battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
+            canAttackIndices.push_back(i);
+        }
+    }
+
+    if (canAttackIndices.empty()) {
+        ui->displayMessage("No units available to attack");
+        return;
+    }
+
+    ui->displayAttackOptions(battlefield, canAttackIndices);
+    int attackerChoice = gameEngine->getInputHandler().getIntInput(
+            0, canAttackIndices.size(), "Choose attacker (0 to cancel): ");
+
+    if (attackerChoice == 0) return;
+
+    size_t attackerIndex = canAttackIndices[attackerChoice - 1];
+    Player* opponent = getOpponent();
+
+    bool hasEnemyUnits = std::any_of(opponent->getBattlefield().begin(),
+                                     opponent->getBattlefield().end(),
+                                     [](const auto& unit) {
+                                         return unit && !unit->isDead();
+                                     });
+
+    ui->displayTargetChoice(opponent);
+    int maxTarget = hasEnemyUnits ? opponent->getBattlefield().size() + 1 : 1;
+
+    int targetChoice = gameEngine->getInputHandler().getIntInput(
+            0, maxTarget, "Select target (0 to cancel): ");
+
+    if (targetChoice == 0) return;
+
+    size_t targetIndex = (hasEnemyUnits && targetChoice <= opponent->getBattlefield().size())
+                         ? targetChoice - 1
+                         : std::numeric_limits<size_t>::max();
+
+    BattleSystem::BattleResult result = attackWithUnit(attackerIndex, targetIndex);
+
+    cleanBattlefield();
+    getOpponent()->cleanBattlefield();
+    gameEngine->updateState();
+}
 void HumanPlayer::handlePlayCard() {
     auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
     if (!gameEngine) return;
@@ -62,111 +165,6 @@ void HumanPlayer::handlePlayCard() {
         logEvent("Error", "Failed to remove card: " + std::string(e.what()));
     }
     ui->showCardPlayedMessage(cardName, isSpell);
-}
-
-
-void HumanPlayer::takeTurn() {
-    GameEngine* gameEngine = dynamic_cast<GameEngine*>(getGameState());
-    if (!gameEngine) return;
-
-    UIManager* ui = gameEngine->getUIManager();
-    bool turnEnded = false;
-
-    while (!turnEnded && !gameEngine->isGameOver()) {
-        std::vector<std::pair<UiActionsEnum, std::string>> options = ui->buildPlayerActions(this);
-
-        UiActionsEnum choice = ui->showActionMenu(options);
-
-        switch (choice) {
-            case UiActionsEnum::PLAY_CARD:
-                handlePlayCard();
-                gameEngine->showBoardState();
-                break;
-
-            case UiActionsEnum::ATTACK:
-                handleAttack();
-                break;
-
-            case UiActionsEnum::SHOW_BOARD:
-                gameEngine->showBoardState();
-                break;
-
-            case UiActionsEnum::SETTINGS:
-                gameEngine->showSettingsMenu();
-                gameEngine->displayGameState();
-                break;
-
-            case UiActionsEnum::END_TURN:
-                turnEnded = true;
-                break;
-
-            default:
-                ui->displayMessage("Wrong choice!");
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                break;
-        }
-    }
-}
-void HumanPlayer::handleAttack() {
-    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
-    if (!gameEngine) return;
-
-    UIManager* ui = gameEngine->getUIManager();
-
-    cleanBattlefield();
-    getOpponent()->cleanBattlefield();
-
-    auto& battlefield = getBattlefield();
-    std::vector<size_t> canAttackIndices;
-    for (size_t i = 0; i < battlefield.size(); ++i) {
-        if (battlefield[i] && battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
-            canAttackIndices.push_back(i);
-        }
-    }
-
-    if (canAttackIndices.empty()) {
-        ui->displayMessage("There are no creatures capable of attacking!");
-        return;
-    }
-
-    ui->displayAttackOptions(battlefield, canAttackIndices);
-    int attackerChoice = gameEngine->getInputHandler().getIntInput(
-            0, canAttackIndices.size(), "Choose an attacking creature (0 cancel): ");
-    if (attackerChoice == 0) return;
-
-    size_t attackerIndex = canAttackIndices[attackerChoice - 1];
-    auto* opponent = getOpponent();
-
-    bool hasEnemyUnits = false;
-    for (const auto& unit : opponent->getBattlefield()) {
-        if (unit && !unit->isDead()) {
-            hasEnemyUnits = true;
-            break;
-        }
-    }
-
-    ui->displayTargetChoice(opponent);
-    int maxTarget = opponent->getBattlefield().size();
-    if (hasEnemyUnits) {
-        maxTarget += 1;
-    }
-
-    int targetChoice = gameEngine->getInputHandler().getIntInput(
-            0, maxTarget, "Select a target (0 cancel): ");
-    if (targetChoice == 0) return;
-
-    size_t targetIndex = (targetChoice <= opponent->getBattlefield().size()) ?
-                         targetChoice - 1 : std::numeric_limits<size_t>::max();
-
-    BattleSystem::BattleResult result = attackWithUnit(attackerIndex, targetIndex);
-
-    cleanBattlefield();
-    getOpponent()->cleanBattlefield();
-    gameEngine->updateState();
-
-    if (!result.attackedHero) {
-        gameEngine->showBoardState();
-    }
 }
 
 void HumanPlayer::startTurn() {
