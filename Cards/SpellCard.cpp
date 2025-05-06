@@ -10,6 +10,14 @@ void SpellCard::play(Player* owner, Player* opponent) {
         std::cerr << "Error: Null player pointer in spell cast\n";
         return;
     }
+
+    if (owner->getMana() < cost) {
+        std::cout << "Not enough mana to cast " << name << " (needs " << cost << ")\n";
+        return;
+    }
+
+    owner->setMana(owner->getMana() - cost);
+
     std::cout << "A spell is used: " << name << " - ";
     try {
     switch (effect) {

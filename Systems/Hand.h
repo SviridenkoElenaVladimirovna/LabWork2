@@ -18,6 +18,9 @@ public:
     const std::vector<std::unique_ptr<Card>>& getCards() const;
     bool isEmpty() const;
     size_t getSize() const;
+    void clear() {
+        cards.clear();
+    }
     size_t size() const { return cards.size(); }
     bool empty() const { return cards.empty(); }
     auto begin() { return cards.begin(); }

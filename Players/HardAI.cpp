@@ -1,10 +1,87 @@
 
 #include "HardAI.h"
+#include "../Cards/SpellCard.h"
 #include <climits>
 #include <iostream>
-
 HardAI::HardAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : AI(name, health, mana, gameState, uiManager) {}
+
+int HardAI::evaluateAttack(UnitCard* attacker, UnitCard* target) const {
+    bool canKill = target->getHealth() <= attacker->getAttack();
+
+    bool willSurvive = attacker->getHealth() > target->getAttack();
+
+    if (canKill) {
+        int killPriority = 10000;
+        if (!willSurvive) {
+            killPriority -= 2000;
+        }
+
+        killPriority += target->getAttack() * 3 + target->getHealth();
+
+        return killPriority;
+    }
+
+    int value = (attacker->getAttack() - target->getHealth()) -
+                (target->getAttack() - attacker->getHealth());
+
+    value += target->getAttack() * 2 + target->getHealth();
+
+    return value;
+}
+bool HardAI::shouldPlayCard(const Card* card) const {
+    if (card->getType() == CardType::UNIT) {
+        return true; 
+    }
+
+    if (card->getType() == CardType::SPELL) {
+        auto spell = dynamic_cast<const SpellCard*>(card);
+        if (spell->getEffect() == SpellEffect::DAMAGE) {
+          
+            for (const auto& enemy : getOpponent()->getBattlefield()) {
+                if (enemy->getHealth() <= spell->getPower()) {
+                    return true;
+                }
+            }
+
+            if (spell->getPower() >= 2 &&
+                getOpponent()->getBattlefield().size() > getBattlefield().size()) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+int HardAI::evaluateCard(const Card* card) const {
+    if (card->getType() == CardType::UNIT) {
+        auto unit = dynamic_cast<const UnitCard*>(card);
+        return unit->getAttack() * 2 + unit->getHealth();
+    }
+    else if (card->getType() == CardType::SPELL) {
+        auto spell = dynamic_cast<const SpellCard*>(card);
+        if (spell->getEffect() == SpellEffect::DAMAGE) {
+       
+            int killCount = 0;
+            for (const auto& enemy : getOpponent()->getBattlefield()) {
+                if (enemy->getHealth() <= spell->getPower()) {
+                    killCount++;
+                }
+            }
+
+            if (killCount > 0) {
+                return 1000 + killCount * 500;
+            }
+            if (getOpponent()->getBattlefield().size() > getBattlefield().size()) {
+                return 800;
+            }
+
+            return 300;
+        }
+    }
+    return card->getCost();
+}
 
 
 int HardAI::chooseAttackTarget(int attackingUnitIndex) const {
@@ -27,25 +104,6 @@ int HardAI::chooseAttackTarget(int attackingUnitIndex) const {
     return bestIndex;
 }
 
-int HardAI::evaluateAttack(UnitCard* attacker, UnitCard* target) const {
-    if (target->getHealth() <= attacker->getAttack()) {
-
-        if (attacker->getHealth() > target->getAttack()) {
-            return 1000 + target->getAttack();
-        }
-    }
-
-    int value = (attacker->getAttack() - target->getHealth()) -
-                (target->getAttack() - attacker->getHealth());
-
-    return value;
-}
-
-bool HardAI::shouldPlayCard(const Card* card) const {
-    if (card->getType() == CardType::UNIT) return true;
-    return getOpponent()->getBattlefield().size() > getBattlefield().size();
-}
-
 int HardAI::chooseCardToPlay() const {
     const auto& cards = getHand().getCards();
     int bestIndex = -1;
@@ -62,14 +120,6 @@ int HardAI::chooseCardToPlay() const {
     }
 
     return bestIndex;
-}
-
-int HardAI::evaluateCard(const Card* card) const {
-    if (card->getType() == CardType::UNIT) {
-        auto unit = dynamic_cast<const UnitCard*>(card);
-        return unit->getAttack() * 2 + unit->getHealth();
-    }
-    return card->getCost();
 }
 
 int HardAI::evaluateCardPlay(const Card* card) const {
