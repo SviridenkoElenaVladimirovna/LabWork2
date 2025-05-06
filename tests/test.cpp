@@ -9,6 +9,7 @@
 #include "../Cards/DamageEffect.h"
 #include "../Players/MediumAI.h"
 #include "../Players/HardAI.h"
+#include "../Systems/BattleSystem.h"
 #include <memory>
 
 class MockGameEngine : public GameEngine {
@@ -407,6 +408,124 @@ TEST_F(HardAITestFixture, HardAITakesFullTurn) {
     EXPECT_EQ(hardAI->getBattlefield().size(), battlefieldSizeBefore + 1);
 }
 
+class IntegrationTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        engine = std::make_unique<GameEngine>(false);
+    }
+
+    std::unique_ptr<GameEngine> engine;
+};
+
+TEST_F(IntegrationTest, GameStateUpdate) {
+    engine->addHumanPlayer("Player", 30, 10);
+    engine->addAIPlayer(1); 
+
+    auto* player = engine->getPlayers()[0].get();
+    auto* ai = engine->getPlayers()[1].get();
+
+    player->setOpponent(ai);
+    ai->setOpponent(player);
+
+    player->setMana(10);
+    player->setMaxMana(10);
+
+    player->getBattlefield().push_back(std::make_unique<UnitCard>("Warrior", 3, 5, 5, false));
+    auto* warrior = player->getBattlefield()[0].get();
+
+    player->startTurn();
+
+    ASSERT_TRUE(warrior->canAttackNow());
+
+    BattleSystem::BattleResult result = player->attackWithUnit(0, std::numeric_limits<size_t>::max());
+
+    EXPECT_TRUE(result.attackedHero);
+    EXPECT_EQ(result.damageDealt, 5);
+    EXPECT_EQ(ai->getHealth(), 25);
+    EXPECT_TRUE(warrior->isExhausted());
+    EXPECT_EQ(player->getMana(), 8);
+    player->endTurn();
+
+    EXPECT_FALSE(warrior->isExhausted());
+}
+TEST_F(IntegrationTest, GameInitialization) {
+    engine->addHumanPlayer("Player", 30, 1);
+    engine->addAIPlayer(1);
+
+    ASSERT_EQ(engine->getPlayers().size(), 2);
+    EXPECT_EQ(engine->getPlayers()[0]->getName(), "Player");
+    EXPECT_EQ(engine->getPlayers()[1]->getName(), "Easy AI");
+
+
+    EXPECT_EQ(engine->getPlayers()[1]->getOpponent(), engine->getPlayers()[0].get());
+
+    EXPECT_EQ(engine->getPlayers()[0]->getMana(), 1);
+    EXPECT_EQ(engine->getPlayers()[1]->getMana(), 1);
+}
+
+TEST_F(IntegrationTest, AIBehavior) {
+    engine->addHumanPlayer("Player", 30, 10);
+    engine->addAIPlayer(2);
+    auto* ai = dynamic_cast<MediumAI*>(engine->getPlayers()[1].get());
+    ASSERT_NE(ai, nullptr);
+    ai->getHandRef().addCard(std::make_unique<UnitCard>("Warrior", 3, 5, 5, true));
+    ai->getHandRef().addCard(std::make_unique<SpellCard>("Fireball", 4, SpellEffect::DAMAGE, 6));
+
+    ai->setMana(10);
+    ai->setMaxMana(10);
+
+    ai->setOpponent(engine->getPlayers()[0].get());
+
+    ai->takeTurn();
+
+    bool playedCards = ai->getBattlefield().size() > 0 ||
+                       ai->getOpponent()->getHealth() < 30 ||
+                       ai->getMana() < 10;
+    EXPECT_TRUE(playedCards);
+}
+TEST_F(IntegrationTest, TurnManagement) {
+    engine->addHumanPlayer("Player", 30, 1);
+    engine->addAIPlayer(1); 
+    engine->initializeGame();
+
+    auto* turnManager = engine->getTurnManager();
+    ASSERT_NE(turnManager, nullptr);
+
+    const auto& players = engine->getPlayers();
+
+    EXPECT_EQ(turnManager->getCurrentPlayer(), players[0].get());
+    EXPECT_EQ(turnManager->getTurnCount(), 1);
+
+    turnManager->endTurn();
+
+    EXPECT_EQ(turnManager->getCurrentPlayer(), players[1].get());
+    EXPECT_EQ(turnManager->getTurnCount(), 1);
+
+    turnManager->endTurn();
+
+    EXPECT_EQ(turnManager->getCurrentPlayer(), players[0].get());
+    EXPECT_EQ(turnManager->getTurnCount(), 2);
+
+    EXPECT_EQ(players[0]->getMaxMana(), 2);
+    EXPECT_EQ(players[0]->getMana(), 2);
+    EXPECT_EQ(players[1]->getMaxMana(), 2);
+    EXPECT_EQ(players[1]->getMana(), 2);
+}
+
+TEST_F(IntegrationTest, GameOverCheck) {
+    engine->addHumanPlayer("Player", 1, 10);
+    engine->addAIPlayer(1);
+    engine->initializeGame();
+    engine->getPlayers()[0]->takeDamage(10);
+
+    EXPECT_TRUE(engine->isGameOver());
+    EXPECT_TRUE(engine->getPlayers()[0]->isDefeated());
+    EXPECT_FALSE(engine->getPlayers()[1]->isDefeated());
+
+    auto* turnManager = engine->getTurnManager();
+    turnManager->endTurn();
+    EXPECT_TRUE(engine->isGameOver());
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

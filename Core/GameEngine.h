@@ -28,14 +28,15 @@ private:
 
 public:
     explicit GameEngine(bool showLogs = false);
-
+    const std::vector<std::unique_ptr<Player>>& getPlayers() const { return players; }
+    TurnManager* getTurnManager() const { return turnManager.get(); }
+    Player* getCurrentPlayer() const { return currentPlayer; }
     InputHandler& getInputHandler() { return uiManager->getInputHandler(); }
     BattleSystem& getBattleSystem() { return *battleSystem; }
 
     void addHumanPlayer(const std::string& name, int health, int mana);
     void addAIPlayer(int difficulty);
 
-    Player* getCurrentPlayer() const { return currentPlayer; }
     Player* getOpponent() const {
         return (currentPlayer == players[0].get()) ? players[1].get() : players[0].get();
     }
