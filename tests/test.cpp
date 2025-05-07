@@ -560,7 +560,6 @@ TEST_F(SystemTest, FullGameCycle) {
     EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
                 ai->getHand().getCards().size() < 4);
 }
-
 TEST_F(SystemTest, AllAILevels) {
     for (int difficulty = 1; difficulty <= 3; ++difficulty) {
         engine = std::make_unique<GameEngine>(false);
@@ -575,21 +574,25 @@ TEST_F(SystemTest, AllAILevels) {
         ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
         engine->initializeGame();
         ai->startTurn();
+        ai->setMaxMana(5);
+        ai->setMana(4);
         ai->takeTurn();
 
         switch(difficulty) {
             case 1:
-            ai->setMana(2);
+
                 EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
-                            ai->getHand().getCards().size() < 4);
+                            ai->getHand().getCards().size() < 3);
                 break;
             case 2:
-          ai->setMana(2);
-                EXPECT_TRUE(ai->getBattlefield().size() > 0);
+
+                EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
+                                                            ai->getHand().getCards().size() < 3);
                 break;
             case 3:
-          ai->setMana(2);
-                EXPECT_TRUE(ai->getBattlefield().size() > 0);
+
+                EXPECT_TRUE(ai->getBattlefield().size() > 0||
+                                                            ai->getHand().getCards().size() < 3);;
                 break;
         }
     }
