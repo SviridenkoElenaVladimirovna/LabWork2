@@ -178,6 +178,13 @@ bool Player::drawCard() {
         }
     }
     logEvent("Card", "deck is empty");
+    if (hand.getCards().empty()) {
+        if (gameState) {
+            gameState->getGameHistory().recordEvent(
+                    GameEvent::of(EventType::SYSTEM, "Player " + getName() + " has no cards left and loses the game"));
+        }
+    }
+
     return false;
 }
 

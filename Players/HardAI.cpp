@@ -31,13 +31,13 @@ int HardAI::evaluateAttack(UnitCard* attacker, UnitCard* target) const {
 }
 bool HardAI::shouldPlayCard(const Card* card) const {
     if (card->getType() == CardType::UNIT) {
-        return true; 
+        return true;
     }
 
     if (card->getType() == CardType::SPELL) {
         auto spell = dynamic_cast<const SpellCard*>(card);
         if (spell->getEffect() == SpellEffect::DAMAGE) {
-          
+           
             for (const auto& enemy : getOpponent()->getBattlefield()) {
                 if (enemy->getHealth() <= spell->getPower()) {
                     return true;
@@ -62,7 +62,6 @@ int HardAI::evaluateCard(const Card* card) const {
     else if (card->getType() == CardType::SPELL) {
         auto spell = dynamic_cast<const SpellCard*>(card);
         if (spell->getEffect() == SpellEffect::DAMAGE) {
-       
             int killCount = 0;
             for (const auto& enemy : getOpponent()->getBattlefield()) {
                 if (enemy->getHealth() <= spell->getPower()) {
@@ -73,6 +72,7 @@ int HardAI::evaluateCard(const Card* card) const {
             if (killCount > 0) {
                 return 1000 + killCount * 500;
             }
+
             if (getOpponent()->getBattlefield().size() > getBattlefield().size()) {
                 return 800;
             }

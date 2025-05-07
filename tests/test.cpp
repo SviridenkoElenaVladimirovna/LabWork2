@@ -526,6 +526,121 @@ TEST_F(IntegrationTest, GameOverCheck) {
     turnManager->endTurn();
     EXPECT_TRUE(engine->isGameOver());
 }
+
+class SystemTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        engine = std::make_unique<GameEngine>(false);
+    }
+
+    std::unique_ptr<GameEngine> engine;
+};
+
+TEST_F(SystemTest, FullGameCycle) {
+    engine->addHumanPlayer("Player", 30, 10);
+    engine->addAIPlayer(1);
+
+    auto* player = engine->getPlayers()[0].get();
+    auto* ai = engine->getPlayers()[1].get();
+
+    player->getDeck().clear();
+    ai->getDeck().clear();
+
+    player->getDeck().addCard(std::make_unique<UnitCard>("Warrior", 2, 3, 3, false));
+    ai->getDeck().addCard(std::make_unique<UnitCard>("Goblin", 1, 2, 2, false));
+
+    engine->initializeGame();
+
+    player->startTurn();
+    ASSERT_GE(player->getHand().getCards().size(), 1);
+
+    player->endTurn();
+    ai->startTurn();
+
+    EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
+                ai->getHand().getCards().size() < 4);
+}
+
+TEST_F(SystemTest, AllAILevels) {
+    for (int difficulty = 1; difficulty <= 3; ++difficulty) {
+        engine = std::make_unique<GameEngine>(false);
+        engine->addHumanPlayer("Player", 30, 10);
+        engine->addAIPlayer(difficulty);
+
+        auto* ai = engine->getPlayers()[1].get();
+
+
+        ai->getDeck().clear();
+        ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
+        ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
+        engine->initializeGame();
+        ai->startTurn();
+        ai->takeTurn();
+
+        switch(difficulty) {
+            case 1:
+            ai->setMana(2);
+                EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
+                            ai->getHand().getCards().size() < 3);
+                break;
+            case 2:
+          ai->setMana(2);
+                EXPECT_TRUE(ai->getBattlefield().size() > 0);
+                break;
+            case 3:
+          ai->setMana(2);
+                EXPECT_TRUE(ai->getBattlefield().size() > 0);
+                break;
+        }
+    }
+}
+
+TEST_F(SystemTest, WinConditions) {
+    engine->addHumanPlayer("Player1", 1, 10);
+    engine->addHumanPlayer("Player2", 30, 10);
+
+    auto* player1 = engine->getPlayers()[0].get();
+    player1->takeDamage(1);
+    EXPECT_TRUE(engine->isGameOver());
+
+    engine = std::make_unique<GameEngine>(false);
+    engine->addHumanPlayer("Player1", 30, 10);
+    engine->addHumanPlayer("Player2", 30, 10);
+    engine->initializeGame();
+
+    auto* player2 = engine->getPlayers()[1].get();
+    player2->getDeck().clear();
+    player2->getHandRef().clear();
+
+    player2->drawCard();
+
+    EXPECT_TRUE(engine->isGameOver());
+}
+
+TEST_F(SystemTest, EdgeCases) {
+    engine->addHumanPlayer("Player", 30, 1);
+    engine->addAIPlayer(1);
+    engine->initializeGame();
+
+    auto* player = engine->getPlayers()[0].get();
+    player->getHandRef().addCard(std::make_unique<UnitCard>("Expensive", 10, 5, 5, false));
+
+    size_t handSizeBefore = player->getHand().getCards().size();
+    player->playCard(3);
+    EXPECT_EQ(player->getHand().getCards().size(), handSizeBefore);
+
+    player->getDeck().clear();
+    EXPECT_TRUE(player->getDeck().isEmpty());
+    bool drawResult = player->drawCard();
+    EXPECT_FALSE(drawResult);
+
+    EXPECT_FALSE(player->canAttack());
+
+    int initialHealth = player->getHealth();
+    player->heal(5);
+    EXPECT_EQ(player->getHealth(), initialHealth);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

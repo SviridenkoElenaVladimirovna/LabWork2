@@ -221,7 +221,17 @@ void GameEngine::toggleLogs() {
 }
 
 bool GameEngine::isGameOver() const {
-    return players[0]->getHealth() <= 0 || players[1]->getHealth() <= 0;
+    if (players[0]->getHealth() <= 0 || players[1]->getHealth() <= 0) {
+        return true;
+    }
+
+    for (const auto& player : players) {
+        if (player->getDeck().isEmpty() && player->getHand().getCards().empty()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void GameEngine::initializeDecks() {
