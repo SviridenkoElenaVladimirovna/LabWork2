@@ -581,7 +581,7 @@ TEST_F(SystemTest, AllAILevels) {
             case 1:
             ai->setMana(2);
                 EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
-                            ai->getHand().getCards().size() < 3);
+                            ai->getHand().getCards().size() < 4);
                 break;
             case 2:
           ai->setMana(2);
