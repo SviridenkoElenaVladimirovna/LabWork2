@@ -41,28 +41,18 @@ void EasyAI::playSelectedCard(int cardIndex) {
         throw;
     }
 }
-
 void EasyAI::takeTurn() {
     if (ui) {
         ui->displayMessage(getName() + " makes a move...");
     }
-    int cardIndex = chooseCardToPlay();
-    if (cardIndex != -1) {
-        try {
-            playSelectedCard(cardIndex);
-        } catch (...) {
-
-        }
-    }
-
     while (hasPlayableCards()) {
-        cardIndex = chooseCardToPlay();
+        int cardIndex = chooseCardToPlay();
         if (cardIndex == -1) break;
 
         try {
             playSelectedCard(cardIndex);
         } catch (...) {
-            break;
+            continue;
         }
     }
 

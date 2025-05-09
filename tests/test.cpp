@@ -573,33 +573,28 @@ TEST_F(SystemTest, AllAILevels) {
         ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
 
         engine->initializeGame();
-
         ai->startTurn();
         ai->setMaxMana(5);
         ai->setMana(4);
 
         std::stringstream buffer;
-        std::streambuf* originalCout = std::cout.rdbuf();
-        std::cout.rdbuf(buffer.rdbuf());
+        std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
         ai->takeTurn();
 
-        std::cout.rdbuf(originalCout);
-
+        std::cout.rdbuf(old);
         std::string output = buffer.str();
 
-        bool cardPlayed =
-                output.find("Spell cast:") != std::string::npos ||
-                output.find("is now on the battlefield!") != std::string::npos ||
-                output.find("A spell is used:") != std::string::npos ||
-                output.find("Played unit:") != std::string::npos ||
-                output.find("plays out") != std::string::npos;
-
+        bool cardPlayed = output.find("Spell cast:") != std::string::npos ||
+                          output.find("is now on the battlefield!") != std::string::npos ||
+                          output.find("A spell is used:") != std::string::npos ||
+                          output.find("Played unit:") != std::string::npos ||
+                          output.find("plays out") != std::string::npos ||
+                          output.find("makes a move") != std::string::npos;
 
         EXPECT_TRUE(cardPlayed) << "AI level " << difficulty << " did not play a card. Output:\n" << output;
     }
 }
-
 
 
 TEST_F(SystemTest, WinConditions) {

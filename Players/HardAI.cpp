@@ -56,15 +56,13 @@ void HardAI::takeTurn() {
         ui->displayMessage(getName() + " makes a move...");
     }
 
-    bool cardPlayed = false;
     int bestCardIndex = chooseCardToPlay();
-
     if (bestCardIndex != -1) {
-        auto& hand = getHandRef();
-        auto card = hand.getCards()[bestCardIndex].get();
-        int cardCost = card->getCost();
-
         try {
+            auto& hand = getHandRef();
+            auto card = hand.getCards()[bestCardIndex].get();
+            int cardCost = card->getCost();
+
             if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
                 spellCard->play(this, getOpponent());
                 if (ui) {
@@ -79,22 +77,22 @@ void HardAI::takeTurn() {
 
             hand.removeCard(bestCardIndex);
             setMana(getMana() - cardCost);
-            cardPlayed = true;
         } catch (const std::exception& e) {
             logEvent("AI Error", "Failed to play card: " + std::string(e.what()));
         }
     }
 
-    while (hasPlayableCards() && getMana() > 0) {
+    while (hasPlayableCards()) {
         int cardIndex = chooseCardToPlay();
         if (cardIndex == -1) break;
 
-        auto& hand = getHandRef();
-        auto card = hand.getCards()[cardIndex].get();
-        int cardCost = card->getCost();
-
         try {
+            auto& hand = getHandRef();
+            auto card = hand.getCards()[cardIndex].get();
+
             if (shouldPlayCard(card)) {
+                int cardCost = card->getCost();
+
                 if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
                     spellCard->play(this, getOpponent());
                 } else {
@@ -105,7 +103,7 @@ void HardAI::takeTurn() {
                 setMana(getMana() - cardCost);
             }
         } catch (...) {
-            break;
+            continue;
         }
     }
 

@@ -129,36 +129,30 @@ void MediumAI::takeTurn() {
     if (ui) {
         ui->displayMessage(getName() + " makes a move...");
     }
-    int bestCardIndex = chooseCardToPlay();
-    if (bestCardIndex != -1) {
-        try {
-            auto& hand = getHandRef();
-            auto card = hand.getCards()[bestCardIndex].get();
-
-            if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
-                spellCard->play(this, getOpponent());
-            } else {
-                playCard(bestCardIndex);
-            }
-
-            hand.removeCard(bestCardIndex);
-            setMana(getMana() - card->getCost());
-        } catch (...) {
-        }
-    }
 
     while (hasPlayableCards()) {
         int cardIndex = chooseCardToPlay();
         if (cardIndex == -1) break;
 
-        if (shouldPlayCard(getHand().getCards()[cardIndex].get())) {
-            try {
-                playSelectedCard(cardIndex);
-            } catch (...) {
-                break;
+        auto& hand = getHandRef();
+        auto card = hand.getCards()[cardIndex].get();
+        int cardCost = card->getCost();
+
+        try {
+            if (shouldPlayCard(card)) {
+                if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
+                    spellCard->play(this, getOpponent());
+                    std::cout << "Spell cast: " << spellCard->getName() << std::endl;
+                } else {
+                    playCard(cardIndex);
+                    std::cout << "Played unit: " << card->getName() << std::endl;
+                }
+
+                hand.removeCard(cardIndex);
+                setMana(getMana() - cardCost);
             }
-        } else {
-            break;
+        } catch (...) {
+            continue;
         }
     }
 
@@ -180,7 +174,6 @@ void MediumAI::takeTurn() {
         ui->displayMessage(getName() + " ends turn.");
     }
 }
-
 int MediumAI::chooseUnitToAttackWith() const {
     const auto& battlefield = getBattlefield();
     for (size_t i = 0; i < battlefield.size(); ++i) {
