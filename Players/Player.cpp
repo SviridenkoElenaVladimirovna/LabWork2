@@ -45,10 +45,6 @@ bool Player::canAffordAttack() const {
 BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t targetIndex) {
     BattleSystem::BattleResult result;
 
-    if (!canAffordAttack()) {
-        logEvent("Attack", "Not enough mana for attack (requires 2)");
-        return result;
-    }
 
     if (attackerIndex >= battlefield.size()) {
         logEvent("Attack", "Invalid attacker index");
@@ -61,8 +57,6 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
         return result;
     }
 
-    mana -= 2;
-
     if (targetIndex == std::numeric_limits<size_t>::max()) {
         result = battleSystem->attackHero(*attacker, *opponent);
     }
@@ -72,9 +66,7 @@ BattleSystem::BattleResult Player::attackWithUnit(size_t attackerIndex, size_t t
             result = battleSystem->attack(*attacker, *target);
         }
     }
-
     attacker->setExhausted(true);
-    logEvent("Attack", attacker->getName() + " attacked and spent 2 mana");
 
     return result;
 }

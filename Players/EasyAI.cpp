@@ -7,6 +7,7 @@
 
 EasyAI::EasyAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : AI(name, health, mana, gameState, uiManager) {}
+
 void EasyAI::playSelectedCard(int cardIndex) {
     try {
         Hand& hand = getHandRef();
@@ -45,6 +46,7 @@ void EasyAI::takeTurn() {
     if (ui) {
         ui->displayMessage(getName() + " makes a move...");
     }
+
     while (hasPlayableCards()) {
         int cardIndex = chooseCardToPlay();
         if (cardIndex == -1) break;
@@ -56,19 +58,26 @@ void EasyAI::takeTurn() {
         }
     }
 
-    while (canAttack()) {
-        int unitIndex = chooseUnitToAttackWith();
-        if (unitIndex == -1) break;
+    const auto& battlefield = getBattlefield();
+    for (size_t i = 0; i < battlefield.size(); ++i) {
+        if (battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
+            int targetIndex = chooseAttackTarget(i);
 
-        int targetIndex = chooseAttackTarget(unitIndex);
-        if (targetIndex != -1) {
-            battleSystem->attack(
-                    *getBattlefield()[unitIndex].get(),
-                    *getOpponent()->getBattlefield()[targetIndex].get());
-        } else {
-            getBattlefield()[unitIndex]->attackPlayer(getOpponent());
+            try {
+                if (targetIndex != -1) {
+                    battleSystem->attack(
+                            *battlefield[i].get(),
+                            *getOpponent()->getBattlefield()[targetIndex].get());
+                } else {
+                    battlefield[i]->attackPlayer(getOpponent());
+                }
+            } catch (...) {
+                continue;
+            }
         }
     }
+    cleanBattlefield();
+    getOpponent()->cleanBattlefield();
 
     if (ui) {
         ui->displayMessage(getName() + " ends turn.");

@@ -21,9 +21,13 @@ void HumanPlayer::takeTurn() {
 
     UIManager* ui = gameEngine->getUIManager();
     bool turnEnded = false;
+    bool shouldShowBoard = true;
 
     while (!turnEnded && !gameEngine->isGameOver()) {
-        gameEngine->showBoardState();
+        if (shouldShowBoard) {
+            gameEngine->showBoardState();
+            shouldShowBoard = false;
+        }
 
         std::vector<std::pair<UiActionsEnum, std::string>> options = ui->buildPlayerActions(this);
         UiActionsEnum choice = ui->showActionMenu(options);
@@ -31,18 +35,22 @@ void HumanPlayer::takeTurn() {
         switch (choice) {
             case UiActionsEnum::PLAY_CARD:
                 handlePlayCard();
+                shouldShowBoard = false;
                 break;
 
             case UiActionsEnum::ATTACK:
                 handleAttack();
+                shouldShowBoard = true;
                 break;
 
             case UiActionsEnum::SHOW_BOARD:
                 gameEngine->showBoardState();
+                shouldShowBoard = false;
                 break;
 
             case UiActionsEnum::SETTINGS:
                 gameEngine->showSettingsMenu();
+                shouldShowBoard = false;
                 break;
 
             case UiActionsEnum::END_TURN:
@@ -53,6 +61,7 @@ void HumanPlayer::takeTurn() {
             default:
                 ui->displayMessage("Invalid choice!");
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                shouldShowBoard = true;
                 break;
         }
     }
@@ -150,8 +159,6 @@ void HumanPlayer::handlePlayCard() {
     try {
         hand.removeCard(cardIndex);
         mana -= cardCost;
-
-        logEvent("Card", "plays out " + cardName);
         if (gameState) {
             gameState->getGameHistory().recordEvent(
                     GameEvent::of(EventType::CARD,

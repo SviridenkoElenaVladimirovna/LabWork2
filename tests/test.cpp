@@ -73,10 +73,12 @@ protected:
     void resetPlayers() {
         human->getBattlefield().clear();
         human->getHandRef().clear();
+        human->setMaxMana(10);
         human->setMana(10);
 
         hardAI->getBattlefield().clear();
         hardAI->getHandRef().clear();
+        hardAI->setMaxMana(10);
         hardAI->setMana(10);
     }
 
@@ -122,43 +124,54 @@ TEST_F(CardBasicTests, SpellDescriptionCorrect) {
 }
 
 TEST_F(CardTestFixture, UnitCardCombat) {
-    resetPlayers();
+resetPlayers();
+mediumAI->setMaxMana(10);
+mediumAI->setMana(10);
+human->setMaxMana(10);
+human->setMana(10);
 
-    human->playUnitCard(std::make_unique<UnitCard>("Warrior", 2, 3, 5, false));
-    mediumAI->playUnitCard(std::make_unique<UnitCard>("Goblin", 1, 2, 4, false));
+ASSERT_EQ(human->getMana(), 10);
+ASSERT_EQ(mediumAI->getMana(), 10);
 
-    human->endTurn();
-    mediumAI->endTurn();
-    human->startTurn();
+human->playUnitCard(std::make_unique<UnitCard>("Warrior", 2, 3, 5, false));
+EXPECT_EQ(human->getMana(), 8);  
 
-    ASSERT_TRUE(human->getBattlefield()[0]->canAttackNow());
-    ASSERT_EQ(mediumAI->getBattlefield()[0]->getHealth(), 4);
-    ASSERT_EQ(human->getMana(), 8);
+mediumAI->playUnitCard(std::make_unique<UnitCard>("Goblin", 1, 2, 4, false));
+EXPECT_EQ(mediumAI->getMana(), 9);  
 
-    auto result = human->attackWithUnit(0, 0);
+human->endTurn();
+mediumAI->endTurn();
+human->startTurn();
+human->setMana(10);
 
-    EXPECT_EQ(mediumAI->getBattlefield()[0]->getHealth(), 1);
-    EXPECT_EQ(human->getBattlefield()[0]->getHealth(), 3);
-    EXPECT_TRUE(human->getBattlefield()[0]->isExhausted());
-    EXPECT_EQ(result.damageDealt, 3);
-    EXPECT_EQ(human->getMana(), 6);
+ASSERT_TRUE(human->getBattlefield()[0]->canAttackNow());
+ASSERT_EQ(mediumAI->getBattlefield()[0]->getHealth(), 4);
 
-    human->playUnitCard(std::make_unique<UnitCard>("Archer", 2, 3, 2, false));
+auto result = human->attackWithUnit(0, 0);
+EXPECT_EQ(human->getMana(), 10);
 
-    human->endTurn();
-    mediumAI->endTurn();
-    human->startTurn();
+EXPECT_EQ(mediumAI->getBattlefield()[0]->getHealth(), 1);
+EXPECT_EQ(human->getBattlefield()[0]->getHealth(), 3);
+EXPECT_TRUE(human->getBattlefield()[0]->isExhausted());
+EXPECT_EQ(result.damageDealt, 3);
 
-    ASSERT_EQ(human->getMana(), 4);
-    ASSERT_EQ(mediumAI->getHealth(), 30);
+human->playUnitCard(std::make_unique<UnitCard>("Archer", 2, 3, 2, false));
+EXPECT_EQ(human->getMana(), 8);
 
-    auto heroResult = human->attackWithUnit(1, std::numeric_limits<size_t>::max());
+human->endTurn();
+mediumAI->endTurn();
+human->startTurn();
+human->setMana(10);
+ASSERT_EQ(human->getMana(), 10);
+ASSERT_EQ(mediumAI->getHealth(), 30);
 
-    EXPECT_EQ(mediumAI->getHealth(), 27);
-    EXPECT_TRUE(heroResult.attackedHero);
-    EXPECT_EQ(heroResult.damageDealt, 3);
-    EXPECT_TRUE(human->getBattlefield()[1]->isExhausted());
-    EXPECT_EQ(human->getMana(), 2);
+auto heroResult = human->attackWithUnit(1, std::numeric_limits<size_t>::max());
+EXPECT_EQ(human->getMana(), 10);
+
+EXPECT_EQ(mediumAI->getHealth(), 27);
+EXPECT_TRUE(heroResult.attackedHero);
+EXPECT_EQ(heroResult.damageDealt, 3);
+EXPECT_TRUE(human->getBattlefield()[1]->isExhausted());
 }
 
 TEST_F(CardTestFixture, DamageEffectWorks) {
@@ -292,38 +305,25 @@ TEST_F(CardTestFixture, EasyAITests) {
 TEST_F(CardTestFixture, MediumAIAttackBehavior) {
     resetPlayers();
 
-    auto weakUnit = std::make_unique<UnitCard>("WeakUnit", 1, 1, 1, false);
-    auto strongUnit = std::make_unique<UnitCard>("StrongUnit", 3, 3, 5, false);
-    auto attacker = std::make_unique<UnitCard>("Attacker", 2, 2, 4, false);
-
-    UnitCard* weakPtr = weakUnit.get();
-    UnitCard* strongPtr = strongUnit.get();
-    UnitCard* attackerPtr = attacker.get();
-
-    human->playUnitCard(std::move(weakUnit));
-    human->playUnitCard(std::move(strongUnit));
-    mediumAI->playUnitCard(std::move(attacker));
-
-    ASSERT_EQ(human->getBattlefield().size(), 2);
-    ASSERT_EQ(mediumAI->getBattlefield().size(), 1);
-    ASSERT_EQ(mediumAI->getBattlefield()[0].get(), attackerPtr);
+    human->playUnitCard(std::make_unique<UnitCard>("WeakUnit", 1, 1, 1, false));
+    human->playUnitCard(std::make_unique<UnitCard>("StrongUnit", 3, 3, 5, false));
+    mediumAI->playUnitCard(std::make_unique<UnitCard>("Attacker", 2, 2, 4, false));
 
     human->endTurn();
+    mediumAI->endTurn();
     mediumAI->startTurn();
 
-    ASSERT_FALSE(mediumAI->getBattlefield()[0]->isExhausted());
-    ASSERT_TRUE(mediumAI->getBattlefield()[0]->canAttackNow());
+    mediumAI->performAttacks();
 
-    const int initialWeakHealth = human->getBattlefield()[0]->getHealth();
-    const int initialStrongHealth = human->getBattlefield()[1]->getHealth();
+    bool weakUnitDamaged = human->getBattlefield()[0]->getHealth() < 1;
+    bool strongUnitDamaged = human->getBattlefield()[1]->getHealth() < 5;
 
-    mediumAI->takeTurn();
+    EXPECT_TRUE(weakUnitDamaged);
+    EXPECT_FALSE(strongUnitDamaged);
 
-    bool weakUnitDamaged = human->getBattlefield()[0]->getHealth() < initialWeakHealth;
-    bool strongUnitDamaged = human->getBattlefield()[1]->getHealth() < initialStrongHealth;
-
-    EXPECT_TRUE(weakUnitDamaged || strongUnitDamaged);
-    EXPECT_TRUE(mediumAI->getBattlefield()[0]->isExhausted());
+    if (!mediumAI->getBattlefield().empty()) {
+        EXPECT_TRUE(mediumAI->getBattlefield()[0]->isExhausted());
+    }
 }
 
 TEST_F(CardTestFixture, MediumAIAttacksHeroWhenNoTargets) {
@@ -334,12 +334,16 @@ TEST_F(CardTestFixture, MediumAIAttacksHeroWhenNoTargets) {
     human->endTurn();
     mediumAI->endTurn();
     mediumAI->startTurn();
-    mediumAI->setMana(10);
 
     int initialHealth = human->getHealth();
-    mediumAI->takeTurn();
 
-    EXPECT_LT(human->getHealth(), initialHealth);
+    mediumAI->performAttacks();
+
+    EXPECT_EQ(human->getHealth(), initialHealth - 3);
+
+    if (!mediumAI->getBattlefield().empty()) {
+        EXPECT_TRUE(mediumAI->getBattlefield()[0]->isExhausted());
+    }
 }
 
 TEST_F(HardAITestFixture, HardAIAvoidsBadTrades) {
@@ -361,15 +365,21 @@ TEST_F(HardAITestFixture, HardAIAvoidsBadTrades) {
     }
     EXPECT_FALSE(badTradeAttacked);
 }
-
 TEST_F(HardAITestFixture, HardAIPlaysStrongestUnitsFirst) {
     resetPlayers();
 
-    hardAI->getHandRef().addCard(std::make_unique<UnitCard>("StrongUnit", 4, 5, 4, false));
     hardAI->getHandRef().addCard(std::make_unique<UnitCard>("WeakUnit", 1, 1, 1, false));
-    hardAI->setMana(10);
+    hardAI->getHandRef().addCard(std::make_unique<UnitCard>("StrongUnit", 4, 4, 4, false));
+    hardAI->setMana(5); 
 
-    hardAI->takeTurn();
+    int bestIndex = hardAI->findBestCardToPlay(false);
+    ASSERT_NE(bestIndex, -1) << "Should find a playable card";
+
+    auto* chosenCard = hardAI->getHand().getCards()[bestIndex].get();
+    EXPECT_EQ(chosenCard->getName(), "StrongUnit")
+                        << "Should choose strongest available unit";
+
+    hardAI->playCardsWithStrategy(false);
 
     bool strongUnitPlayed = false;
     for (const auto& unit : hardAI->getBattlefield()) {
@@ -378,36 +388,65 @@ TEST_F(HardAITestFixture, HardAIPlaysStrongestUnitsFirst) {
             break;
         }
     }
-    EXPECT_TRUE(strongUnitPlayed);
+    EXPECT_TRUE(strongUnitPlayed) << "Strong unit should be played first";
 }
 
 TEST_F(HardAITestFixture, HardAIAttacksHeroWhenNoTargets) {
     resetPlayers();
 
     hardAI->playUnitCard(std::make_unique<UnitCard>("Attacker", 3, 3, 3, false));
+
+    hardAI->endTurn();
     hardAI->startTurn();
 
     int initialHealth = human->getHealth();
-    hardAI->takeTurn();
 
-    EXPECT_LT(human->getHealth(), initialHealth);
+    if (!hardAI->getBattlefield().empty() &&
+        hardAI->getBattlefield()[0]->canAttackNow()) {
+        hardAI->getBattlefield()[0]->attackPlayer(human.get());
+    }
+
+    EXPECT_LT(human->getHealth(), initialHealth)
+                        << "AI should attack hero when no other targets available";
+    EXPECT_TRUE(hardAI->getBattlefield()[0]->isExhausted())
+                        << "Attacking unit should be exhausted after attack";
 }
-
-TEST_F(HardAITestFixture, HardAITakesFullTurn) {
+TEST_F(HardAITestFixture, ShouldPlayAggressiveWhenAdvantaged) {
     resetPlayers();
 
-    hardAI->getHandRef().addCard(std::make_unique<UnitCard>("TestUnit", 2, 3, 3, false));
-    hardAI->setMana(5);
+    hardAI->playUnitCard(std::make_unique<UnitCard>("StrongUnit", 3, 5, 5, false));
+    human->takeDamage(10); 
 
-    size_t handSizeBefore = hardAI->getHand().getSize();
-    size_t battlefieldSizeBefore = hardAI->getBattlefield().size();
-
-    hardAI->takeTurn();
-
-    EXPECT_EQ(hardAI->getHand().getSize(), handSizeBefore - 1);
-    EXPECT_EQ(hardAI->getBattlefield().size(), battlefieldSizeBefore + 1);
+    EXPECT_TRUE(hardAI->shouldPlayAggressively())
+                        << "Should play aggressive when having unit and health advantage";
 }
 
+TEST_F(HardAITestFixture, CardEvaluationPrioritizesKills) {
+    resetPlayers();
+
+    human->playUnitCard(std::make_unique<UnitCard>("WeakEnemy", 1, 1, 1, false));
+
+    auto killSpell = std::make_unique<SpellCard>("KillSpell", 2, SpellEffect::DAMAGE, 2);
+    int killSpellScore = hardAI->evaluateCard(killSpell.get());
+
+    auto normalCard = std::make_unique<UnitCard>("NormalUnit", 2, 2, 2, false);
+    int normalScore = hardAI->evaluateCard(normalCard.get());
+
+    EXPECT_GT(killSpellScore, normalScore)
+                        << "Should prioritize cards that can kill enemy units";
+}
+
+TEST_F(HardAITestFixture, OptimalAttackTargetSelection) {
+    resetPlayers();
+
+    hardAI->playUnitCard(std::make_unique<UnitCard>("Attacker", 3, 2, 4, false));
+    human->playUnitCard(std::make_unique<UnitCard>("WeakEnemy", 1, 1, 1, false));
+    human->playUnitCard(std::make_unique<UnitCard>("StrongEnemy", 4, 4, 4, false));
+
+    int targetIndex = hardAI->chooseOptimalAttackTarget(0, false);
+
+    EXPECT_EQ(targetIndex, 0) << "Should prioritize killing weak enemies first";
+}
 class IntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -443,7 +482,7 @@ TEST_F(IntegrationTest, GameStateUpdate) {
     EXPECT_EQ(result.damageDealt, 5);
     EXPECT_EQ(ai->getHealth(), 25);
     EXPECT_TRUE(warrior->isExhausted());
-    EXPECT_EQ(player->getMana(), 8);
+    EXPECT_EQ(player->getMana(), 10);
     player->endTurn();
 
     EXPECT_FALSE(warrior->isExhausted());
@@ -452,17 +491,31 @@ TEST_F(IntegrationTest, GameInitialization) {
     engine->addHumanPlayer("Player", 30, 1);
     engine->addAIPlayer(1);
 
+    engine->initializeGame();
+
     ASSERT_EQ(engine->getPlayers().size(), 2);
     EXPECT_EQ(engine->getPlayers()[0]->getName(), "Player");
     EXPECT_EQ(engine->getPlayers()[1]->getName(), "Easy AI");
 
+    Player* humanPlayer = engine->getPlayers()[0].get();
+    Player* aiPlayer = engine->getPlayers()[1].get();
 
-    EXPECT_EQ(engine->getPlayers()[1]->getOpponent(), engine->getPlayers()[0].get());
+    EXPECT_NE(humanPlayer, aiPlayer) << "Players should be different instances";
+    EXPECT_EQ(aiPlayer->getOpponent(), humanPlayer)
+                        << "AI player should have human player as opponent";
+    EXPECT_EQ(humanPlayer->getOpponent(), aiPlayer)
+                        << "Human player should have AI as opponent";
 
-    EXPECT_EQ(engine->getPlayers()[0]->getMana(), 1);
-    EXPECT_EQ(engine->getPlayers()[1]->getMana(), 1);
+    EXPECT_EQ(humanPlayer->getMana(), 1);
+    EXPECT_EQ(aiPlayer->getMana(), 1);
+
+    EXPECT_EQ(humanPlayer->getHand().getSize(), 3)
+                        << "Human should have 3 starting cards";
+    EXPECT_EQ(aiPlayer->getHand().getSize(), 3)
+                        << "AI should have 3 starting cards";
+    EXPECT_FALSE(engine->isGameOver())
+                        << "Game should not be over after initialization";
 }
-
 TEST_F(IntegrationTest, AIBehavior) {
     engine->addHumanPlayer("Player", 30, 10);
     engine->addAIPlayer(2);

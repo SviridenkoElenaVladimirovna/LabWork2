@@ -59,8 +59,6 @@ void UIManager::displayGameState(Player* currentPlayer, Player* opponent, int tu
 
     std::cout << "=== YOU === [" << currentPlayer->getName() << "]\n";
     displayPlayerInfo(currentPlayer);
-    displayHighlightedMessage("YOUR BATTLEFIELD");
-    displayBattlefield(currentPlayer->getBattlefield());
     displayHighlightedMessage("YOUR HAND");
     displayCards(currentPlayer->getHand().getCards());
 }

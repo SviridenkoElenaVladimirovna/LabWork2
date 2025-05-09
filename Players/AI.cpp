@@ -59,8 +59,13 @@ void AI::attackWithUnit(int unitIndex) {
 
 bool AI::hasPlayableCards() const {
     const auto& cards = getHand().getCards();
-    return std::any_of(cards.begin(), cards.end(),
-                       [this](const auto& card) { return card->getCost() <= getMana(); });
+    for (const auto& cardPtr : cards) {
+        const Card* card = cardPtr.get();
+        if (card->getCost() <= getMana() && shouldPlayCard(card)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int AI::chooseCardToPlay() const {

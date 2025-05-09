@@ -15,7 +15,6 @@
 
 class GameState;
 
-
 class Player {
 protected:
     std::string name;
