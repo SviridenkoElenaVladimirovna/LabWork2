@@ -23,42 +23,35 @@ private:
     std::unique_ptr<BattleSystem> battleSystem;
 
     void initializeDecks();
-
     void drawCardForCurrentPlayer();
 
 public:
     explicit GameEngine(bool showLogs = false);
-    const std::vector<std::unique_ptr<Player>>& getPlayers() const { return players; }
-    TurnManager* getTurnManager() const { return turnManager.get(); }
-    Player* getCurrentPlayer() const { return currentPlayer; }
-    InputHandler& getInputHandler() { return uiManager->getInputHandler(); }
-    BattleSystem& getBattleSystem() { return *battleSystem; }
 
+    const std::vector<std::unique_ptr<Player>>& getPlayers() const;
+    TurnManager* getTurnManager() const;
+    Player* getCurrentPlayer() const;
+    InputHandler& getInputHandler();
+    BattleSystem& getBattleSystem();
+    UIManager* getUIManager() const;
+    bool isShowingLogs() const;
+
+    Player* getOpponent() const;
     void addHumanPlayer(const std::string& name, int health, int mana);
     void addAIPlayer(int difficulty);
-
-    Player* getOpponent() const {
-        return (currentPlayer == players[0].get()) ? players[1].get() : players[0].get();
-    }
 
     UiActionsEnum showActionMenu(const std::vector<std::pair<UiActionsEnum, std::string>>& options);
     void showBoardState();
     void handleHumanTurn();
     void handleAiTurn();
-
     bool playerHasPlayableCards() const;
     bool playerCanAttack() const;
     bool isGameOver() const;
-
-    UIManager* getUIManager() const { return uiManager.get(); }
-    bool isShowingLogs() const { return showLogs; }
-
     void initializeGame();
     void toggleLogs();
     void showSettingsMenu();
     void startGame();
     void displayGameState() const;
-
     bool checkGameOver();
 };
 

@@ -136,3 +136,4 @@ UnitCard* AI::findBestAttackTarget(UnitCard* attacker) const {
 
     return findWeakestEnemy();
 }
+bool AI::shouldPlayCard(const Card* card) const { return true; }

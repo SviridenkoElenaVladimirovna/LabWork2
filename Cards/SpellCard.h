@@ -17,15 +17,12 @@ private:
 
 public:
     SpellCard(const std::string& name, int cost, SpellEffect effect, int power);
-    std::unique_ptr<Card> clone() const override {
-        return std::make_unique<SpellCard>(*this);
-    }
-    SpellEffect getEffect() const { return effect; }
-    int getPower() const { return power; }
+    std::unique_ptr<Card> clone() const override;
+    SpellEffect getEffect() const;
+    int getPower() const;
     void play(Player* owner, Player* opponent) override;
     std::string getDescription() const override;
     void displayInfo() const override;
-
 };
 
 #endif

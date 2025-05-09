@@ -216,10 +216,6 @@ bool GameEngine::checkGameOver() {
     return false;
 }
 
-void GameEngine::toggleLogs() {
-    showLogs = !showLogs;
-}
-
 bool GameEngine::isGameOver() const {
     if (players[0]->getHealth() <= 0 || players[1]->getHealth() <= 0) {
         return true;
@@ -243,4 +239,38 @@ void GameEngine::initializeDecks() {
             deck.addCard(std::make_unique<UnitCard>("Dark Magician", 4, 3, 5, true));
         }
     }
+}
+void GameEngine::toggleLogs() {
+    showLogs = !showLogs;
+}
+const std::vector<std::unique_ptr<Player>>& GameEngine::getPlayers() const {
+    return players;
+}
+
+TurnManager* GameEngine::getTurnManager() const {
+    return turnManager.get();
+}
+
+Player* GameEngine::getCurrentPlayer() const {
+    return currentPlayer;
+}
+
+InputHandler& GameEngine::getInputHandler() {
+    return uiManager->getInputHandler();
+}
+
+BattleSystem& GameEngine::getBattleSystem() {
+    return *battleSystem;
+}
+
+UIManager* GameEngine::getUIManager() const {
+    return uiManager.get();
+}
+
+bool GameEngine::isShowingLogs() const {
+    return showLogs;
+}
+
+Player* GameEngine::getOpponent() const {
+    return (currentPlayer == players[0].get()) ? players[1].get() : players[0].get();
 }

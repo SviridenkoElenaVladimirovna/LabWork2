@@ -8,6 +8,15 @@
 class GameEngine;
 
 class AI : public Player {
+protected:
+    UIManager* ui;
+    virtual bool shouldPlayCard(const Card* card) const;
+    virtual UnitCard* findWeakestEnemy() const;
+    virtual UnitCard* findStrongestEnemy() const;
+    virtual UnitCard* findBestAttackTarget(UnitCard* attacker) const;
+
+    void attackWithUnit(int unitIndex);
+
 public:
     AI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
     virtual ~AI() = default;
@@ -17,15 +26,6 @@ public:
     virtual int chooseCardToPlay() const;
     virtual int chooseUnitToAttackWith() const;
     virtual int chooseAttackTarget(int attackingUnitIndex) const;
-
-protected:
-    UIManager* ui;
-    virtual bool shouldPlayCard(const Card* card) const { return true; }
-    virtual UnitCard* findWeakestEnemy() const;
-    virtual UnitCard* findStrongestEnemy() const;
-    virtual UnitCard* findBestAttackTarget(UnitCard* attacker) const;
-
-    void attackWithUnit(int unitIndex);
 };
 
 #endif

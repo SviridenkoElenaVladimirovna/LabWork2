@@ -1,7 +1,9 @@
-
 #include "MediumAI.h"
+#include "../Cards/SpellCard.h"
+#include "../Core/GameEngine.h"
 #include <iostream>
 #include <climits>
+#include <algorithm>
 
 MediumAI::MediumAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : AI(name, health, mana, gameState, uiManager) {}
@@ -21,71 +23,187 @@ int MediumAI::chooseAttackTarget(int attackingUnitIndex) const {
     return -1;
 }
 
+bool MediumAI::hasPlayableCards() const {
+    const auto& cards = getHand().getCards();
+    return std::any_of(cards.begin(), cards.end(),
+                       [this](const auto& card) {
+                           return card->getCost() <= getMana() && !card->isPlayed();
+                       });
+}
+
 bool MediumAI::shouldPlayCard(const Card* card) const {
-    return card->getType() == CardType::UNIT;
+    if (card->getType() == CardType::UNIT) {
+        return true;
+    }
+
+    if (card->getType() == CardType::SPELL) {
+        auto spell = dynamic_cast<const SpellCard*>(card);
+        if (spell && spell->getEffect() == SpellEffect::DAMAGE) {
+            for (const auto& enemy : getOpponent()->getBattlefield()) {
+                if (enemy->getHealth() <= spell->getPower()) {
+                    return true;
+                }
+            }
+            if (getBattlefield().size() < 3) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 int MediumAI::chooseCardToPlay() const {
     const auto& cards = getHand().getCards();
     int bestIndex = -1;
-    int lowestCost = 100;
+    int bestScore = INT_MIN;
+    int currentMana = getMana();
 
     for (size_t i = 0; i < cards.size(); ++i) {
-        if (cards[i]->getCost() <= getMana() &&
-            cards[i]->getCost() < lowestCost) {
-            lowestCost = cards[i]->getCost();
-            bestIndex = static_cast<int>(i);
+        if (cards[i]->getCost() <= currentMana && !cards[i]->isPlayed()) {
+            int score = evaluateCard(cards[i].get());
+            if (score > bestScore) {
+                bestScore = score;
+                bestIndex = static_cast<int>(i);
+            }
         }
     }
 
     return bestIndex;
 }
 
+int MediumAI::evaluateCard(const Card* card) const {
+    if (card->getType() == CardType::UNIT) {
+        auto unit = dynamic_cast<const UnitCard*>(card);
+        return (unit->getAttack() * 3 + unit->getHealth() * 2) - unit->getCost();
+    }
+    else if (card->getType() == CardType::SPELL) {
+        auto spell = dynamic_cast<const SpellCard*>(card);
+        if (spell->getEffect() == SpellEffect::DAMAGE) {
+            int killPotential = 0;
+            for (const auto& enemy : getOpponent()->getBattlefield()) {
+                if (enemy->getHealth() <= spell->getPower()) {
+                    killPotential += 200;
+                }
+            }
+            if (getOpponent()->getBattlefield().size() > getBattlefield().size()) {
+                killPotential += 100;
+            }
+            return killPotential + 50 - spell->getCost();
+        }
+    }
+    return 0;
+}
+
+void MediumAI::playSelectedCard(int cardIndex) {
+    Hand& hand = getHandRef();
+    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
+
+    if (!gameEngine || cardIndex < 0 || static_cast<size_t>(cardIndex) >= hand.getCards().size()) {
+        return;
+    }
+
+    const auto& handCards = hand.getCards();
+    auto card = handCards[cardIndex].get();
+    int cardCost = card->getCost();
+
+    if (cardCost > getMana()) {
+        return;
+    }
+    try {
+        if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
+            spellCard->play(this, getOpponent());
+            if (ui) {
+                ui->showCardPlayedMessage(spellCard->getName(), true);
+            }
+        } else {
+            playCard(cardIndex);
+            if (ui) {
+                ui->showCardPlayedMessage(card->getName(), false);
+            }
+        }
+    } catch (const std::exception& e) {
+        logEvent("AI Error", "Failed to play card: " + std::string(e.what()));
+    }
+}
 void MediumAI::takeTurn() {
-    std::cout << getName() << " makes a move...\n";
+    if (ui) {
+        ui->displayMessage(getName() + " makes a move...");
+    }
+    int bestCardIndex = chooseCardToPlay();
+    if (bestCardIndex != -1) {
+        try {
+            auto& hand = getHandRef();
+            auto card = hand.getCards()[bestCardIndex].get();
+
+            if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
+                spellCard->play(this, getOpponent());
+            } else {
+                playCard(bestCardIndex);
+            }
+
+            hand.removeCard(bestCardIndex);
+            setMana(getMana() - card->getCost());
+        } catch (...) {
+        }
+    }
 
     while (hasPlayableCards()) {
         int cardIndex = chooseCardToPlay();
         if (cardIndex == -1) break;
-        playCard(cardIndex);
+
+        if (shouldPlayCard(getHand().getCards()[cardIndex].get())) {
+            try {
+                playSelectedCard(cardIndex);
+            } catch (...) {
+                break;
+            }
+        } else {
+            break;
+        }
     }
 
-    int attackerIndex = chooseUnitToAttackWith();
-    while (attackerIndex != -1) {
+    while (canAttack()) {
+        int attackerIndex = chooseUnitToAttackWith();
+        if (attackerIndex == -1) break;
+
         int targetIndex = chooseAttackTarget(attackerIndex);
         if (targetIndex != -1) {
-            getBattlefield()[attackerIndex]->attackTarget(
-                    getOpponent()->getBattlefield()[targetIndex].get());
+            battleSystem->attack(
+                    *getBattlefield()[attackerIndex].get(),
+                    *getOpponent()->getBattlefield()[targetIndex].get());
         } else {
             getBattlefield()[attackerIndex]->attackPlayer(getOpponent());
         }
-        attackerIndex = chooseUnitToAttackWith();
+    }
+
+    if (ui) {
+        ui->displayMessage(getName() + " ends turn.");
     }
 }
 
 int MediumAI::chooseUnitToAttackWith() const {
     const auto& battlefield = getBattlefield();
     for (size_t i = 0; i < battlefield.size(); ++i) {
-        if (battlefield[i]->canAttackNow()) {
+        if (battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
             return static_cast<int>(i);
         }
     }
     return -1;
 }
 
-UnitCard* MediumAI::findOptimalAttackTarget() const {
+UnitCard* MediumAI::findWeakestEnemy() const {
     const auto& enemies = getOpponent()->getBattlefield();
     if (enemies.empty()) return nullptr;
 
-    UnitCard* optimalTarget = nullptr;
+    UnitCard* weakest = nullptr;
     int minHealth = INT_MAX;
 
     for (const auto& enemy : enemies) {
-        if (enemy->getHealth() < minHealth) {
-            optimalTarget = enemy.get();
+        if (enemy && !enemy->isDead() && enemy->getHealth() < minHealth) {
+            weakest = enemy.get();
             minHealth = enemy->getHealth();
         }
     }
 
-    return optimalTarget;
+    return weakest;
 }

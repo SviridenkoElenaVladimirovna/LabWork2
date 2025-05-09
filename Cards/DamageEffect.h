@@ -1,4 +1,3 @@
-
 #include "Effect.h"
 #include <string>
 
@@ -12,5 +11,4 @@ public:
     void apply(Card* cardTarget, Player* playerTarget) override;
     void applyEffect(Card* target) override;
     std::string getDescription() const override;
-    int getDamage() const { return damage; }
 };

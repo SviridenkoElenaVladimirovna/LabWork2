@@ -1,15 +1,15 @@
 #include <gtest/gtest.h>
-#include "../Cards/Card.h"
-#include "../Cards/UnitCard.h"
-#include "../Cards/SpellCard.h"
-#include "../Players/HumanPlayer.h"
-#include "../Players/EasyAI.h"
-#include "../Core/GameEngine.h"
-#include "../Cards/HealEffect.h"
-#include "../Cards/DamageEffect.h"
-#include "../Players/MediumAI.h"
-#include "../Players/HardAI.h"
-#include "../Systems/BattleSystem.h"
+#include "Cards/Card.h"
+#include "Cards/UnitCard.h"
+#include "Cards/SpellCard.h"
+#include "Players/HumanPlayer.h"
+#include "Players/EasyAI.h"
+#include "Core/GameEngine.h"
+#include "Cards/HealEffect.h"
+#include "Cards/DamageEffect.h"
+#include "Players/MediumAI.h"
+#include "Players/HardAI.h"
+#include "Systems/BattleSystem.h"
 #include <memory>
 
 class MockGameEngine : public GameEngine {
@@ -485,7 +485,7 @@ TEST_F(IntegrationTest, AIBehavior) {
 }
 TEST_F(IntegrationTest, TurnManagement) {
     engine->addHumanPlayer("Player", 30, 1);
-    engine->addAIPlayer(1); 
+    engine->addAIPlayer(1);
     engine->initializeGame();
 
     auto* turnManager = engine->getTurnManager();
@@ -568,35 +568,39 @@ TEST_F(SystemTest, AllAILevels) {
 
         auto* ai = engine->getPlayers()[1].get();
 
-
         ai->getDeck().clear();
         ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
         ai->getDeck().addCard(std::make_unique<UnitCard>("CheapUnit", 1, 1, 1, false));
+
         engine->initializeGame();
+
         ai->startTurn();
         ai->setMaxMana(5);
         ai->setMana(4);
+
+        std::stringstream buffer;
+        std::streambuf* originalCout = std::cout.rdbuf();
+        std::cout.rdbuf(buffer.rdbuf());
+
         ai->takeTurn();
 
-        switch(difficulty) {
-            case 1:
+        std::cout.rdbuf(originalCout);
 
-                EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
-                            ai->getHand().getCards().size() < 3);
-                break;
-            case 2:
+        std::string output = buffer.str();
 
-                EXPECT_TRUE(ai->getBattlefield().size() > 0 ||
-                                                            ai->getHand().getCards().size() < 3);
-                break;
-            case 3:
+        bool cardPlayed =
+                output.find("Spell cast:") != std::string::npos ||
+                output.find("is now on the battlefield!") != std::string::npos ||
+                output.find("A spell is used:") != std::string::npos ||
+                output.find("Played unit:") != std::string::npos ||
+                output.find("plays out") != std::string::npos;
 
-                EXPECT_TRUE(ai->getBattlefield().size() > 0||
-                                                            ai->getHand().getCards().size() < 3);;
-                break;
-        }
+
+        EXPECT_TRUE(cardPlayed) << "AI level " << difficulty << " did not play a card. Output:\n" << output;
     }
 }
+
+
 
 TEST_F(SystemTest, WinConditions) {
     engine->addHumanPlayer("Player1", 1, 10);

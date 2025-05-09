@@ -8,6 +8,9 @@ class GameState;
 class Player;
 
 class BattleSystem {
+private:
+    GameState* currentBattleState;
+
 public:
     struct BattleResult {
         std::string attackerName;
@@ -24,9 +27,6 @@ public:
 
     BattleResult attack(UnitCard& attacker, UnitCard& target);
     BattleResult attackHero(UnitCard& attacker, Player& targetPlayer);
-
-private:
-    GameState* currentBattleState;
 };
 
 #endif

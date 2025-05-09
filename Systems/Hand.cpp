@@ -39,3 +39,34 @@ bool Hand::isEmpty() const {
 size_t Hand::getSize() const {
     return cards.size();
 }
+const Card* Hand::operator[](size_t index) const {
+    return cards[index].get();
+}
+
+void Hand::clear() {
+    cards.clear();
+}
+
+size_t Hand::size() const {
+    return cards.size();
+}
+
+bool Hand::empty() const {
+    return cards.empty();
+}
+
+auto Hand::begin() {
+    return cards.begin();
+}
+
+auto Hand::end() {
+    return cards.end();
+}
+
+Card* Hand::operator[](size_t index) {
+    return cards[index].get();
+}
+
+std::vector<std::unique_ptr<Card>>& Hand::getCardsRef() {
+    return cards;
+}

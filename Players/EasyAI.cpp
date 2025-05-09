@@ -7,7 +7,83 @@
 
 EasyAI::EasyAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager)
         : AI(name, health, mana, gameState, uiManager) {}
+void EasyAI::playSelectedCard(int cardIndex) {
+    try {
+        Hand& hand = getHandRef();
+        if (cardIndex < 0 || static_cast<size_t>(cardIndex) >= hand.getCards().size()) {
+            return;
+        }
 
+        auto card = hand.getCards()[cardIndex].get();
+        int cardCost = card->getCost();
+
+        if (cardCost > getMana()) {
+            return;
+        }
+
+        if (auto* spellCard = dynamic_cast<SpellCard*>(card)) {
+            spellCard->play(this, getOpponent());
+            if (ui) {
+                ui->showCardPlayedMessage(spellCard->getName(), true);
+            }
+        } else if (auto* unitCard = dynamic_cast<UnitCard*>(card)) {
+            playCard(cardIndex);
+            if (ui) {
+                ui->showCardPlayedMessage(unitCard->getName(), false);
+            }
+        }
+
+        hand.removeCard(cardIndex);
+        setMana(getMana() - cardCost);
+
+    } catch (const std::exception& e) {
+        logEvent("AI Error", "Failed to play card: " + std::string(e.what()));
+        throw;
+    }
+}
+
+void EasyAI::takeTurn() {
+    if (ui) {
+        ui->displayMessage(getName() + " makes a move...");
+    }
+    int cardIndex = chooseCardToPlay();
+    if (cardIndex != -1) {
+        try {
+            playSelectedCard(cardIndex);
+        } catch (...) {
+
+        }
+    }
+
+    while (hasPlayableCards()) {
+        cardIndex = chooseCardToPlay();
+        if (cardIndex == -1) break;
+
+        try {
+            playSelectedCard(cardIndex);
+        } catch (...) {
+            break;
+        }
+    }
+
+    while (canAttack()) {
+        int unitIndex = chooseUnitToAttackWith();
+        if (unitIndex == -1) break;
+
+        int targetIndex = chooseAttackTarget(unitIndex);
+        if (targetIndex != -1) {
+            battleSystem->attack(
+                    *getBattlefield()[unitIndex].get(),
+                    *getOpponent()->getBattlefield()[targetIndex].get());
+        } else {
+            getBattlefield()[unitIndex]->attackPlayer(getOpponent());
+        }
+    }
+
+    if (ui) {
+        ui->displayMessage(getName() + " ends turn.");
+    }
+}
 int EasyAI::chooseAttackTarget(int attackingUnitIndex) const {
     if (!getOpponent() || attackingUnitIndex < 0 ||
         attackingUnitIndex >= static_cast<int>(getBattlefield().size())) {
@@ -24,44 +100,6 @@ bool EasyAI::shouldPlayCard(const Card* card) const {
     return true;
 }
 
-void EasyAI::playSelectedCard(int cardIndex) {
-    Hand& hand = const_cast<Hand&>(getHand());
-    auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
-
-    if (!gameEngine || cardIndex < 0 || static_cast<size_t>(cardIndex) >= hand.getCards().size()) {
-        return;
-    }
-
-    const auto& handCards = hand.getCards();
-    auto cardName = handCards[cardIndex]->getName();
-    bool isSpell = dynamic_cast<SpellCard*>(handCards[cardIndex].get()) != nullptr;
-    int cardCost = handCards[cardIndex]->getCost();
-
-    try {
-        if (auto* spellCard = dynamic_cast<SpellCard*>(handCards[cardIndex].get())) {
-            spellCard->play(this, gameEngine->getOpponent());
-        } else if (auto* unitCard = dynamic_cast<UnitCard*>(handCards[cardIndex].get())) {
-            playCard(cardIndex);
-        }
-
-        hand.removeCard(cardIndex);
-        setMana(getMana() - cardCost);
-
-        logEvent("AI Card", "plays " + cardName);
-        if (getGameState()) {
-            getGameState()->getGameHistory().recordEvent(
-                    GameEvent::of(EventType::CARD,
-                                  "AI " + getName() + " plays " + cardName)
-            );
-        }
-
-        if (ui) {
-            ui->showCardPlayedMessage(cardName, isSpell);
-        }
-    } catch (const std::exception& e) {
-        logEvent("AI Error", "Failed to play card: " + std::string(e.what()));
-    }
-}
 
 bool EasyAI::hasPlayableCards() const {
     const auto& cards = getHand().getCards();
@@ -73,22 +111,32 @@ bool EasyAI::hasPlayableCards() const {
 
 int EasyAI::chooseCardToPlay() const {
     const auto& cards = getHand().getCards();
+    std::vector<int> playableIndices;
+
     for (size_t i = 0; i < cards.size(); ++i) {
         if (cards[i]->getCost() <= getMana()) {
-            return static_cast<int>(i);
+            playableIndices.push_back(static_cast<int>(i));
         }
     }
-    return -1;
+
+    if (playableIndices.empty()) return -1;
+
+    return playableIndices[rand() % playableIndices.size()];
 }
 
 int EasyAI::chooseUnitToAttackWith() const {
     const auto& battlefield = getBattlefield();
+    std::vector<int> canAttackIndices;
+
     for (size_t i = 0; i < battlefield.size(); ++i) {
-        if (battlefield[i]->canAttackNow()) {
-            return static_cast<int>(i);
+        if (battlefield[i]->canAttackNow() && !battlefield[i]->isDead()) {
+            canAttackIndices.push_back(static_cast<int>(i));
         }
     }
-    return -1;
+
+    if (canAttackIndices.empty()) return -1;
+
+    return canAttackIndices[rand() % canAttackIndices.size()];
 }
 
 UnitCard* EasyAI::findWeakestEnemy() const {
@@ -107,50 +155,3 @@ UnitCard* EasyAI::findWeakestEnemy() const {
     return weakest;
 }
 
-void EasyAI::takeTurn() {
-    if (ui) {
-        ui->displayMessage(getName() + " makes a move...");
-    }
-
-    try {
-        while (hasPlayableCards()) {
-            int cardIndex = chooseCardToPlay();
-            if (cardIndex == -1) break;
-
-            const auto& cards = getHand().getCards();
-            if (cardIndex >= 0 && static_cast<size_t>(cardIndex) < cards.size()) {
-                if (auto spell = dynamic_cast<SpellCard*>(cards[cardIndex].get())) {
-                    if (spell->getEffect() == SpellEffect::DRAW && getDeck().isEmpty()) {
-                        logEvent("AI", "Skip drawing - deck is empty");
-                        continue;
-                    }
-                }
-                playSelectedCard(cardIndex);
-            }
-        }
-
-        while (true) {
-            int unitIndex = chooseUnitToAttackWith();
-            if (unitIndex == -1) break;
-
-            const auto& battlefield = getBattlefield();
-            if (unitIndex >= 0 && static_cast<size_t>(unitIndex) < battlefield.size()) {
-                if (battlefield[unitIndex] && battlefield[unitIndex]->canAttackNow()) {
-                    attackWithUnit(unitIndex);
-                }
-            }
-        }
-    }
-    catch (const std::exception& e) {
-        logEvent("AI Error", e.what());
-        if (getGameState()) {
-            getGameState()->getGameHistory().recordEvent(
-                    GameEvent::of(EventType::SYSTEM, "AI error: " + std::string(e.what()))
-            );
-        }
-    }
-
-    if (ui) {
-        ui->displayMessage(getName() + " ends turn.");
-    }
-}

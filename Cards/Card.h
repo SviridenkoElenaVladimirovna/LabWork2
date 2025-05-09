@@ -21,21 +21,18 @@ protected:
     CardType type;
 
 public:
-    bool isPlayed() const { return played; }
-    void setPlayed(bool val) { played = val; }
     Card(const std::string& name, int cost, CardType type);
     virtual ~Card() = default;
 
+    bool isPlayed() const;
+    void setPlayed(bool val);
+    std::string getName() const;
+    int getCost() const;
+    CardType getType() const;
+
     virtual void play(Player* owner, Player* opponent) = 0;
     virtual std::string getDescription() const = 0;
-    virtual void displayInfo() const {
-        std::cout << name << " (" << cost << " mana)";
-    }
-
-    std::string getName() const { return name; }
-    int getCost() const { return cost; }
-    CardType getType() const { return type; }
-
+    virtual void displayInfo() const;
     virtual std::unique_ptr<Card> clone() const = 0;
 
 };

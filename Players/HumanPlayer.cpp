@@ -64,11 +64,6 @@ void HumanPlayer::handleAttack() {
 
     UIManager* ui = gameEngine->getUIManager();
 
-    if (!canAttack()) {
-        ui->displayMessage("Cannot attack - not enough mana or no available units");
-        return;
-    }
-
     cleanBattlefield();
     getOpponent()->cleanBattlefield();
 
@@ -116,7 +111,9 @@ void HumanPlayer::handleAttack() {
 
     cleanBattlefield();
     getOpponent()->cleanBattlefield();
-    gameEngine->updateState();
+    if (targetIndex != std::numeric_limits<size_t>::max()) {
+        gameEngine->updateState();
+    }
 }
 void HumanPlayer::handlePlayCard() {
     auto* gameEngine = dynamic_cast<GameEngine*>(getGameState());
@@ -181,4 +178,7 @@ std::vector<size_t> HumanPlayer::getPlayableCardIndices() const {
         }
     }
     return indices;
+}
+BattleSystem& HumanPlayer::getBattleSystem() {
+    return *battleSystem;
 }

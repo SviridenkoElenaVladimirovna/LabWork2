@@ -18,10 +18,6 @@ void TurnManager::endTurn() {
                 player->drawCard();
             }
         }
-    } else {
-        if (players[currentPlayerIndex]) {
-            //players[currentPlayerIndex]->drawCard();
-        }
     }
 }
 

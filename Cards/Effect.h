@@ -7,6 +7,8 @@ class Card;
 class Player;
 
 class Effect {
+protected:
+    std::string type;
 public:
     explicit Effect(const std::string& type);
     virtual ~Effect() = default;
@@ -15,9 +17,6 @@ public:
     virtual void applyEffect(Card* target) = 0;
     virtual std::string getDescription() const = 0;
 
-
-protected:
-    std::string type;
 };
 
 #endif

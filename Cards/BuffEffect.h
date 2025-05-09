@@ -11,7 +11,6 @@ public:
     BuffEffect(int buffAmount);
     std::string getDescription() const;
     virtual void applyEffect(Card* target);
-    int getBuffAmount() const;
 };
 
 #endif

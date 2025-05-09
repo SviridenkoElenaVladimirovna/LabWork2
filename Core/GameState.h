@@ -20,11 +20,7 @@ public:
     virtual Player* getOpponent() const = 0;
     virtual void displayGameState() const = 0;
     void updateState();
-
-
     int getTurn() const;
-
-
     void logEvent(const std::string& type, const std::string& details);
     GameHistory& getGameHistory();
     const GameHistory& getGameHistory() const;

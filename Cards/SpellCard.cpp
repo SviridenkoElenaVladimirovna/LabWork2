@@ -69,3 +69,13 @@ std::string SpellCard::getDescription() const {
 void SpellCard::displayInfo() const {
     std::cout << getDescription() << " (" << getCost() << " manes)";
 }
+std::unique_ptr<Card> SpellCard::clone() const {
+    return std::make_unique<SpellCard>(*this);
+}
+SpellEffect SpellCard::getEffect() const {
+    return effect;
+}
+
+int SpellCard::getPower() const {
+    return power;
+}
