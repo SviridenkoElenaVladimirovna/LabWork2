@@ -1,6 +1,0 @@
-<map id="Cards/Effect.h" name="Cards/Effect.h">
-<area shape="rect" id="node1" title="Base class for card effects (buffs, damage, etc)" alt="" coords="196,5,308,32"/>
-<area shape="rect" id="node2" href="$BuffEffect_8h.html" title="The effect of increasing a unit&#39;s attack and health." alt="" coords="5,80,144,107"/>
-<area shape="rect" id="node3" href="$DamageEffect_8h.html" title="Damage Effect." alt="" coords="169,80,335,107"/>
-<area shape="rect" id="node4" href="$HealEffect_8h.html" title="HealEffect." alt="" coords="359,80,502,107"/>
-</map>

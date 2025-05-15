@@ -1,4 +1,0 @@
-<map id="HumanPlayer" name="HumanPlayer">
-<area shape="rect" id="node1" title="Realizes interaction with the player through the menu." alt="" coords="5,80,116,107"/>
-<area shape="rect" id="node2" href="$classPlayer.html" title="Contains player data: deck, hand, battlefield, mana and health." alt="" coords="29,5,92,32"/>
-</map>

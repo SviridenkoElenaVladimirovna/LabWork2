@@ -1,6 +1,0 @@
-<map id="Players/AI.h" name="Players/AI.h">
-<area shape="rect" id="node1" title="Base class for AI players." alt="" coords="176,5,275,32"/>
-<area shape="rect" id="node2" href="$EasyAI_8h.html" title="AI with random actions." alt="" coords="5,80,136,107"/>
-<area shape="rect" id="node3" href="$HardAI_8h.html" title="AI with advanced strategy (map and goal evaluation)." alt="" coords="160,80,291,107"/>
-<area shape="rect" id="node4" href="$MediumAI_8h.html" title="AI attacking the weakest enemy." alt="" coords="315,80,467,107"/>
-</map>

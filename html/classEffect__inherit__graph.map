@@ -1,6 +1,0 @@
-<map id="Effect" name="Effect">
-<area shape="rect" id="node1" title="An abstract class representing a map effect." alt="" coords="143,5,201,32"/>
-<area shape="rect" id="node2" href="$classBuffEffect.html" title="Increases attack stats." alt="" coords="5,80,91,107"/>
-<area shape="rect" id="node3" href="$classDamageEffect.html" title="Deals damage to the target (unit or player)." alt="" coords="115,80,229,107"/>
-<area shape="rect" id="node4" href="$classHealEffect.html" title="Restores health." alt="" coords="254,80,343,107"/>
-</map>

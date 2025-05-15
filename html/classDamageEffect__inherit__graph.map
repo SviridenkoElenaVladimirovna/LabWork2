@@ -1,4 +1,0 @@
-<map id="DamageEffect" name="DamageEffect">
-<area shape="rect" id="node1" title="Deals damage to the target (unit or player)." alt="" coords="5,80,120,107"/>
-<area shape="rect" id="node2" href="$classEffect.html" title="An abstract class representing a map effect." alt="" coords="33,5,92,32"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="Cards/UnitCard.h" name="Cards/UnitCard.h">
-<area shape="rect" id="node1" title="Unit map with attack, health and statuses." alt="" coords="111,5,243,32"/>
-<area shape="rect" id="node2" href="$Card_8h.html" title="Base class for all cards (units, spells)" alt="" coords="145,80,209,107"/>
-<area shape="rect" id="node3" title=" " alt="" coords="5,155,64,181"/>
-<area shape="rect" id="node4" title=" " alt="" coords="88,155,165,181"/>
-<area shape="rect" id="node5" title=" " alt="" coords="189,155,269,181"/>
-<area shape="rect" id="node6" title=" " alt="" coords="293,155,352,181"/>
-</map>

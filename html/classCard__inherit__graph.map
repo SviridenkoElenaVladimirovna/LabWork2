@@ -1,5 +1,0 @@
-<map id="Card" name="Card">
-<area shape="rect" id="node1" title="Abstract card with name, cost and type." alt="" coords="73,5,125,32"/>
-<area shape="rect" id="node2" href="$classSpellCard.html" title="A card that applies an effect when cast." alt="" coords="5,80,89,107"/>
-<area shape="rect" id="node3" href="$classUnitCard.html" title="A card that can be placed on the battlefield and engage in combat." alt="" coords="113,80,192,107"/>
-</map>

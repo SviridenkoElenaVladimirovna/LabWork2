@@ -1,9 +1,0 @@
-<map id="Systems/GameHistory.h" name="Systems/GameHistory.h">
-<area shape="rect" id="node1" title="Stores the history of game events." alt="" coords="5,5,184,32"/>
-<area shape="rect" id="node2" title=" " alt="" coords="29,155,107,181"/>
-<area shape="rect" id="node3" title=" " alt="" coords="63,80,126,107"/>
-<area shape="rect" id="node4" href="$GameEvent_8h.html" title="Game Event class with type, description and timestamp." alt="" coords="150,80,354,107"/>
-<area shape="rect" id="node5" title=" " alt="" coords="241,229,300,256"/>
-<area shape="rect" id="node6" title=" " alt="" coords="223,155,281,181"/>
-<area shape="rect" id="node7" href="$EventType_8h_source.html" title=" " alt="" coords="305,155,407,181"/>
-</map>
