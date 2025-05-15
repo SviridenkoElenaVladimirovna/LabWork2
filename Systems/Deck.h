@@ -1,3 +1,7 @@
+/**
+ * @file Deck.h
+ * @brief A class to manage the player's deck of cards.
+ */
 #ifndef DECK_H
 #define DECK_H
 
@@ -6,7 +10,10 @@
 #include <random>
 #include <algorithm>
 #include "../Cards/Card.h"
-
+/**
+ * @class Deck
+ * @brief Contains cards and methods for working with the deck.
+ */
 class Deck {
 private:
     std::vector<std::unique_ptr<Card>> cards;

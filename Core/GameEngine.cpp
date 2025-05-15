@@ -3,11 +3,6 @@
 #include "../Players/EasyAI.h"
 #include "../Players/MediumAI.h"
 #include "../Players/HardAI.h"
-#include "../Cards/UnitCard.h"
-#include "../Cards/SpellCard.h"
-#include <iostream>
-#include "../Core/TurnManager.h"
-#include <limits>
 #include <algorithm>
 #include <thread>
 

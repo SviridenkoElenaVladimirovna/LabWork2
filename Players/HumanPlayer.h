@@ -1,3 +1,7 @@
+/**
+ * @file HumanPlayer.h
+ * @brief A class for controlling a person's moves via UI.
+ */
 #ifndef HUMANPLAYER_H
 #define HUMANPLAYER_H
 
@@ -6,7 +10,10 @@
 #include <vector>
 #include <utility>
 #include <string>
-
+/**
+ * @class HumanPlayer
+ * @brief Realizes interaction with the player through the menu.
+ */
 class HumanPlayer : public Player {
 private:
     BattleSystem& getBattleSystem();

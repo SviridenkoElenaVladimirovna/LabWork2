@@ -1,6 +1,13 @@
+/**
+ * @file HardAI.h
+ * @brief AI with advanced strategy (map and goal evaluation).
+ */
 #include "AI.h"
 #include <vector>
-
+/**
+ * @class HardAI
+ * @brief Represents an AI player with advanced strategy using evaluation heuristics.
+ */
 class HardAI : public AI {
 
 protected:

@@ -1,6 +1,13 @@
+/**
+ * @file UiActionsEnum.h
+ * @brief Enumeration of player actions in UI.
+ */
 #ifndef UIACTIONSENUM_H
 #define UIACTIONSENUM_H
-
+/**
+ * @enum UiActionsEnum
+ * @brief Player action options.
+ */
 enum class UiActionsEnum {
     CANCEL = 0,
     PLAY_CARD = 1,

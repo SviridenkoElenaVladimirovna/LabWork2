@@ -1,0 +1,5 @@
+<map id="MediumAI" name="MediumAI">
+<area shape="rect" id="node1" title="Represents an AI that attacks the weakest enemy and plays cards more sensibly." alt="" coords="5,155,93,181"/>
+<area shape="rect" id="node2" href="$classAI.html" title="Realizes the decision logic for the AI." alt="" coords="30,80,69,107"/>
+<area shape="rect" id="node3" href="$classPlayer.html" title="Contains player data: deck, hand, battlefield, mana and health." alt="" coords="18,5,81,32"/>
+</map>

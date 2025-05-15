@@ -1,0 +1,10 @@
+<map id="Core/GameState.h" name="Core/GameState.h">
+<area shape="rect" id="node1" title="Base class for storing game state." alt="" coords="5,5,147,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="63,155,126,181"/>
+<area shape="rect" id="node3" title=" " alt="" coords="97,229,175,256"/>
+<area shape="rect" id="node4" href="$GameHistory_8h.html" title="Stores the history of game events." alt="" coords="114,80,305,107"/>
+<area shape="rect" id="node5" href="$GameEvent_8h.html" title="Game Event class with type, description and timestamp." alt="" coords="202,155,406,181"/>
+<area shape="rect" id="node6" title=" " alt="" coords="347,304,405,331"/>
+<area shape="rect" id="node7" title=" " alt="" coords="199,229,257,256"/>
+<area shape="rect" id="node8" href="$EventType_8h_source.html" title=" " alt="" coords="281,229,383,256"/>
+</map>

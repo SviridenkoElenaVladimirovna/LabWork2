@@ -1,3 +1,7 @@
+/**
+ * @file Effect.h
+ * @brief Base class for card effects (buffs, damage, etc)
+ */
 #ifndef EFFECT_H
 #define EFFECT_H
 
@@ -5,7 +9,10 @@
 
 class Card;
 class Player;
-
+/**
+ * @class Effect
+ * @brief An abstract class representing a map effect.
+ */
 class Effect {
 protected:
     std::string type;

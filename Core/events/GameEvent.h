@@ -1,3 +1,7 @@
+/**
+ * @file GameEvent.h
+ * @brief Game Event class with type, description and timestamp.
+ */
 #ifndef GAMEEVENT_H
 #define GAMEEVENT_H
 
@@ -6,7 +10,10 @@
 #include <memory>
 
 #include "EventType.h"
-
+/**
+ * @class GameEvent
+ * @brief Contains information about the game event.
+ */
 class GameEvent {
 private:
     std::string eventType;

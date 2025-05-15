@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classEffect.html" title="An abstract class representing a map effect." alt="" coords="5,56,64,83"/>
+<area shape="rect" id="node2" href="$classBuffEffect.html" title="Increases attack stats." alt="" coords="127,5,212,32"/>
+<area shape="rect" id="node3" href="$classDamageEffect.html" title="Deals damage to the target (unit or player)." alt="" coords="112,56,227,83"/>
+<area shape="rect" id="node4" href="$classHealEffect.html" title="Restores health." alt="" coords="125,107,214,133"/>
+</map>

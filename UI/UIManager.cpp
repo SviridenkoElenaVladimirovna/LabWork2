@@ -177,27 +177,6 @@ void UIManager::displayBoard(Player* player, Player* opponent) {
     std::cout << "----------------------------------------" << std::endl;
 }
 
-void UIManager::displayBattleResults(const BattleSystem::BattleResult& result) {
-    std::cout << "\n=== BATTLE RESULT ===\n";
-    std::cout << result.attackerName << " attacked " << result.defenderName
-              << " and dealt " << result.damageDealt << " damage\n";
-
-    if (result.counterDamage > 0) {
-        std::cout << result.defenderName << " counterattacked for "
-                  << result.counterDamage << " damage\n";
-    }
-
-    if (result.defenderDestroyed) {
-        std::cout << result.defenderName << " was destroyed!\n";
-    }
-    if (result.attackerDestroyed) {
-        std::cout << result.attackerName << " was destroyed!\n";
-    }
-
-    std::cout << "=====================\n";
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-}
-
 void UIManager::logGameEvents(const std::vector<std::unique_ptr<GameEvent>>& events) {
     for (int i = 0; i < events.size(); i++) {
         displayLogMessage(events.at(i)->toString());

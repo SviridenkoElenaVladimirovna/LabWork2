@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classCard.html" title="Abstract card with name, cost and type." alt="" coords="5,31,57,57"/>
+<area shape="rect" id="node2" href="$classSpellCard.html" title="A card that applies an effect when cast." alt="" coords="105,5,189,32"/>
+<area shape="rect" id="node3" href="$classUnitCard.html" title="A card that can be placed on the battlefield and engage in combat." alt="" coords="108,56,187,83"/>
+</map>

@@ -1,10 +1,17 @@
+/**
+ * @file Hand.h
+ * @brief A class to manage the cards in the player's hand.
+ */
 #ifndef HAND_H
 #define HAND_H
 
 #include <vector>
 #include <memory>
 #include "../Cards/Card.h"
-
+/**
+ * @class Hand
+ * @brief Contains cards that the player can play.
+ */
 class Hand {
 private:
     std::vector<std::unique_ptr<Card>> cards;

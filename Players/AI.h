@@ -1,3 +1,7 @@
+/**
+ * @file AI.h
+ * @brief Base class for AI players.
+ */
 #ifndef AI_H
 #define AI_H
 
@@ -6,7 +10,10 @@
 #include <vector>
 
 class GameEngine;
-
+/**
+ * @class AI
+ * @brief Realizes the decision logic for the AI.
+ */
 class AI : public Player {
 protected:
     UIManager* ui;

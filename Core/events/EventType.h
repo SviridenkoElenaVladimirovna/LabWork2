@@ -1,3 +1,7 @@
+/**
+ * @enum EventType
+ * @brief Enumeration of all possible event types.
+ */
 #ifndef EVENTTYPE_H
 #define EVENTTYPE_H
 
@@ -12,7 +16,11 @@ enum class EventType {
   HEALING = 5,
   DAMAGE = 6,
 };
-
+/**
+ * @brief Converts EventType to a string.
+ * @param type EventType.
+ * @return String representation of type.
+ */
 inline std::string eventTypeToString(EventType type) {
   switch (type) {
     case EventType::CARD: return "Card";

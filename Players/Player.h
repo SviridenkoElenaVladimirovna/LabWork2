@@ -1,3 +1,7 @@
+/**
+ * @file Player.h
+ * @brief Base class for player (human/ AI).
+ */
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -14,7 +18,10 @@
 #include "../Core/GameState.h"
 
 class GameState;
-
+/**
+ * @class Player
+ * @brief Contains player data: deck, hand, battlefield, mana and health.
+ */
 class Player {
 protected:
     std::string name;

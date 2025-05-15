@@ -1,3 +1,7 @@
+/**
+ * @file Card.h
+ * @brief Base class for all cards (units, spells)
+ */
 #ifndef CARD_H
 #define CARD_H
 
@@ -12,7 +16,10 @@ enum class CardType {
     UNIT,
     SPELL
 };
-
+/**
+ * @class Card
+ * @brief Abstract card with name, cost and type
+ */
 class Card {
 protected:
     std::string name;

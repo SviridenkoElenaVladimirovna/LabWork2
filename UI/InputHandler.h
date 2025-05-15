@@ -1,3 +1,7 @@
+/**
+ * @file InputHandler.h
+ * @brief Handles user input and commands.
+ */
 #ifndef INPUTHANDLER_H
 #define INPUTHANDLER_H
 
@@ -8,7 +12,10 @@
 #include <cctype>
 
 #include "UiActionsEnum.h"
-
+/**
+ * @class InputHandler
+ * @brief Controls the input of numbers and text commands.
+ */
 class InputHandler {
 private:
     std::map<std::string, std::function<void()>> commandHandlers;

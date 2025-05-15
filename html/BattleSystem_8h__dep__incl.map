@@ -1,0 +1,13 @@
+<map id="Systems/BattleSystem.h" name="Systems/BattleSystem.h">
+<area shape="rect" id="node1" title="Handles combat interactions between units and players." alt="" coords="385,5,567,32"/>
+<area shape="rect" id="node2" href="$GameEngine_8h.html" title="The main game class that controls gameplay." alt="" coords="502,229,653,256"/>
+<area shape="rect" id="node4" href="$UIManager_8h.html" title="Responsible for displaying the game interface." alt="" coords="209,155,332,181"/>
+<area shape="rect" id="node9" href="$Player_8h.html" title="Base class for player (human/ AI)." alt="" coords="413,80,539,107"/>
+<area shape="rect" id="node3" href="$HumanPlayer_8h.html" title="A class for controlling a person&#39;s moves via UI." alt="" coords="491,304,664,331"/>
+<area shape="rect" id="node5" href="$AI_8h.html" title="Base class for AI players." alt="" coords="221,229,320,256"/>
+<area shape="rect" id="node6" href="$EasyAI_8h.html" title="AI with random actions." alt="" coords="5,304,136,331"/>
+<area shape="rect" id="node7" href="$HardAI_8h.html" title="AI with advanced strategy (map and goal evaluation)." alt="" coords="160,304,291,331"/>
+<area shape="rect" id="node8" href="$MediumAI_8h.html" title="AI attacking the weakest enemy." alt="" coords="315,304,467,331"/>
+<area shape="rect" id="node10" href="$TurnManager_8h.html" title="Controls turn ordering and round counting." alt="" coords="458,155,609,181"/>
+<area shape="rect" id="node11" href="$PlayerState_8h.html" title="A class to store the snapshot state of a player." alt="" coords="633,155,777,181"/>
+</map>

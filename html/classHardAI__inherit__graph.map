@@ -1,0 +1,5 @@
+<map id="HardAI" name="HardAI">
+<area shape="rect" id="node1" title="Represents an AI player with advanced strategy using evaluation heuristics." alt="" coords="5,155,72,181"/>
+<area shape="rect" id="node2" href="$classAI.html" title="Realizes the decision logic for the AI." alt="" coords="19,80,58,107"/>
+<area shape="rect" id="node3" href="$classPlayer.html" title="Contains player data: deck, hand, battlefield, mana and health." alt="" coords="7,5,70,32"/>
+</map>

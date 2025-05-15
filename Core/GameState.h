@@ -1,3 +1,7 @@
+/**
+ * @file GameState.h
+ * @brief Base class for storing game state.
+ */
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
@@ -7,7 +11,12 @@
 
 class PlayerState;
 class Player;
+/**
+ * @class GameState
+ * @brief Abstract base class representing the state of the game.
+ * abstract methods for retrieving player-related state.
 
+ */
 class GameState {
 protected:
     int turn;

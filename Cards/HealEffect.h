@@ -1,8 +1,15 @@
+/**
+ * @file HealEffect.h
+ * @brief HealEffect
+ */
 #ifndef HEALEFFECT_H
 #define HEALEFFECT_H
 
 #include "Effect.h"
-
+/**
+ * @class HealEffect
+ * @brief Restores health
+ */
 class HealEffect : public Effect {
 private:
     int healAmount;

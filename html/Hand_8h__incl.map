@@ -1,0 +1,9 @@
+<map id="Systems/Hand.h" name="Systems/Hand.h">
+<area shape="rect" id="node1" title="A class to manage the cards in the player&#39;s hand." alt="" coords="42,5,170,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,80,68,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="67,155,145,181"/>
+<area shape="rect" id="node4" href="$Card_8h.html" title="Base class for all cards (units, spells)" alt="" coords="143,80,261,107"/>
+<area shape="rect" id="node5" title=" " alt="" coords="169,155,227,181"/>
+<area shape="rect" id="node6" title=" " alt="" coords="251,155,331,181"/>
+<area shape="rect" id="node7" title=" " alt="" coords="355,155,414,181"/>
+</map>

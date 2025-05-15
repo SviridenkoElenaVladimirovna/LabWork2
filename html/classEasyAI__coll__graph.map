@@ -1,0 +1,10 @@
+<map id="EasyAI" name="EasyAI">
+<area shape="rect" id="node1" title="Represents a simple AI that acts randomly." alt="" coords="289,260,355,287"/>
+<area shape="rect" id="node2" href="$classAI.html" title="Realizes the decision logic for the AI." alt="" coords="303,184,341,211"/>
+<area shape="rect" id="node3" href="$classPlayer.html" title="Contains player data: deck, hand, battlefield, mana and health." alt="" coords="195,95,257,121"/>
+<area shape="rect" id="node4" href="$classBattleSystem.html" title="Controls the mechanics of attacks and damage calculation." alt="" coords="5,5,116,32"/>
+<area shape="rect" id="node5" href="$classDeck.html" title="Contains cards and methods for working with the deck." alt="" coords="148,5,203,32"/>
+<area shape="rect" id="node6" href="$classGameState.html" title="Abstract base class representing the state of the game. abstract methods for retrieving player&#45;relate..." alt="" coords="227,5,321,32"/>
+<area shape="rect" id="node7" href="$classHand.html" title="Contains cards that the player can play." alt="" coords="349,5,405,32"/>
+<area shape="rect" id="node8" href="$classUIManager.html" title="Manages all UI: menus, battlefield, maps and logs." alt="" coords="371,95,465,121"/>
+</map>

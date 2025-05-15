@@ -1,3 +1,7 @@
+/**
+ * @file BattleSystem.h
+ * @brief Handles combat interactions between units and players.
+ */
 #ifndef BATTLESYSTEM_H
 #define BATTLESYSTEM_H
 
@@ -6,12 +10,19 @@
 
 class GameState;
 class Player;
-
+/**
+ * @class BattleSystem
+ * @brief Controls the mechanics of attacks and damage calculation.
+ */
 class BattleSystem {
 private:
     GameState* currentBattleState;
 
 public:
+    /**
+     * @struct BattleResult
+     * @brief BattleResult.
+     */
     struct BattleResult {
         std::string attackerName;
         std::string defenderName;

@@ -1,3 +1,7 @@
+/**
+ * @file GameHistory.h
+ * @brief Stores the history of game events.
+ */
 #ifndef GAMEHISTORY_H
 #define GAMEHISTORY_H
 
@@ -5,7 +9,10 @@
 #include <vector>
 #include "../Core/events/GameEvent.h"
 
-
+/**
+ * @class GameHistory
+ * @brief Records and provides access to game events.
+ */
 class GameHistory {
 private:
     std::vector<std::unique_ptr<GameEvent>> events;

@@ -1,8 +1,15 @@
+/**
+ * @file UnitCard.h
+ * @brief Unit map with attack, health and statuses
+ */
 #ifndef UNIT_CARD_H
 #define UNIT_CARD_H
 
 #include "Card.h"
-
+/**
+ * @class UnitCard
+ * @brief A card that can be placed on the battlefield and engage in combat.
+ */
 class UnitCard : public Card {
 private:
     int attack;

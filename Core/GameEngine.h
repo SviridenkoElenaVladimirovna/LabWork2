@@ -1,3 +1,7 @@
+/**
+ * @file GameEngine.h
+ * @brief The main game class that controls gameplay.
+ */
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
@@ -10,6 +14,10 @@
 #include "../UI/InputHandler.h"
 #include "../UI/UIManager.h"
 #include "GameState.h"
+/**
+ * @class GameEngine
+ * @brief Main game controller class that manages the game loop and state.
+ */
 
 class GameEngine : public GameState {
 private:

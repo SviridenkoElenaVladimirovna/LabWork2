@@ -1,3 +1,7 @@
+/**
+ * @file UIManager.h
+ * @brief Responsible for displaying the game interface.
+ */
 #ifndef UIMANAGER_H
 #define UIMANAGER_H
 
@@ -12,7 +16,10 @@
 #include <string>
 
 class GameEngine;
-
+/**
+ * @class UIManager
+ * @brief Manages all UI: menus, battlefield, maps and logs.
+ */
 class UIManager {
 private:
     InputHandler inputHandler;
@@ -34,17 +41,11 @@ public:
 
     int showCardSelection(const std::vector<std::unique_ptr<Card>>& cards,
                           const std::vector<size_t>& playableIndices);
-
-    std::pair<int, Player*> selectAttackTarget(Player* opponent,
-                                               const std::vector<std::unique_ptr<UnitCard>>& enemyUnits);
-    void displayBattleResults(const BattleSystem::BattleResult& result);
     void displayAttackOptions(const std::vector<std::unique_ptr<UnitCard>>& units,
                               const std::vector<size_t>& canAttackIndices);
     void displayTargetChoice(Player* opponent);
 
     void displayPlayerInfo(Player* player);
-    void displayHealthStatus(int health, int maxHealth);
-    void displayManaStatus(int mana, int maxMana);
     void displayBoard(Player* player, Player* opponent);
 
 

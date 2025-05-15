@@ -1,0 +1,5 @@
+<map id="Cards/DamageEffect.h" name="Cards/DamageEffect.h">
+<area shape="rect" id="node1" title="Damage Effect." alt="" coords="5,5,172,32"/>
+<area shape="rect" id="node2" href="$Effect_8h.html" title="Base class for card effects (buffs, damage, etc)" alt="" coords="17,80,88,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="59,155,118,181"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classPlayer.html" title="Contains player data: deck, hand, battlefield, mana and health." alt="" coords="5,81,68,108"/>
+<area shape="rect" id="node2" href="$classAI.html" title="Realizes the decision logic for the AI." alt="" coords="152,56,191,83"/>
+<area shape="rect" id="node6" href="$classHumanPlayer.html" title="Realizes interaction with the player through the menu." alt="" coords="116,107,227,133"/>
+<area shape="rect" id="node3" href="$classEasyAI.html" title="Represents a simple AI that acts randomly." alt="" coords="285,5,352,32"/>
+<area shape="rect" id="node4" href="$classHardAI.html" title="Represents an AI player with advanced strategy using evaluation heuristics." alt="" coords="285,56,352,83"/>
+<area shape="rect" id="node5" href="$classMediumAI.html" title="Represents an AI that attacks the weakest enemy and plays cards more sensibly." alt="" coords="275,107,363,133"/>
+</map>

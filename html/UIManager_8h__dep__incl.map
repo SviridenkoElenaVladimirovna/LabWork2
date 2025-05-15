@@ -1,0 +1,9 @@
+<map id="UI/UIManager.h" name="UI/UIManager.h">
+<area shape="rect" id="node1" title="Responsible for displaying the game interface." alt="" coords="196,5,319,32"/>
+<area shape="rect" id="node2" href="$GameEngine_8h.html" title="The main game class that controls gameplay." alt="" coords="107,80,258,107"/>
+<area shape="rect" id="node4" href="$AI_8h.html" title="Base class for AI players." alt="" coords="296,80,395,107"/>
+<area shape="rect" id="node3" href="$HumanPlayer_8h.html" title="A class for controlling a person&#39;s moves via UI." alt="" coords="5,155,179,181"/>
+<area shape="rect" id="node5" href="$EasyAI_8h.html" title="AI with random actions." alt="" coords="203,155,333,181"/>
+<area shape="rect" id="node6" href="$HardAI_8h.html" title="AI with advanced strategy (map and goal evaluation)." alt="" coords="357,155,488,181"/>
+<area shape="rect" id="node7" href="$MediumAI_8h.html" title="AI attacking the weakest enemy." alt="" coords="512,155,664,181"/>
+</map>

@@ -1,8 +1,15 @@
+/**
+ * @file EasyAI.h
+ * @brief AI with random actions.
+ */
 #ifndef EASYAI_H
 #define EASYAI_H
 
 #include "AI.h"
-
+/**
+ * @class EasyAI
+ * @brief Represents a simple AI that acts randomly.
+ */
 class EasyAI : public AI {
 private:
     UnitCard* findWeakestEnemy() const;

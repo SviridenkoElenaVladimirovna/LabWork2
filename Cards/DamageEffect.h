@@ -1,6 +1,13 @@
+/**
+ * @file DamageEffect.h
+ * @brief Damage Effect
+ */
 #include "Effect.h"
 #include <string>
-
+/**
+ * @class DamageEffect
+ * @brief Deals damage to the target (unit or player).
+ */
 class DamageEffect : public Effect {
 private:
     int damage;

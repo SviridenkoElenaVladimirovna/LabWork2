@@ -1,6 +1,13 @@
+/**
+ * @file MediumAI.h
+ * @brief AI attacking the weakest enemy.
+ */
 #include "AI.h"
 #include <memory>
-
+/**
+ * @class MediumAI
+ * @brief Represents an AI that attacks the weakest enemy and plays cards more sensibly.
+ */
 class MediumAI : public AI {
 private:
     UnitCard* findWeakestEnemy() const;
