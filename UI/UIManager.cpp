@@ -1,3 +1,7 @@
+/*
+Sviridenko Elena st130482@student.spbu.ru
+The system under development is a C++ console card game inspired by Hearthstone. 
+*/
 #include "UIManager.h"
 #include "../Core/GameEngine.h"
 #include <iostream>

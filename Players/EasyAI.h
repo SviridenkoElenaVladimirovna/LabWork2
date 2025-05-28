@@ -1,3 +1,7 @@
+/*
+Sviridenko Elena st130482@student.spbu.ru
+The system under development is a C++ console card game inspired by Hearthstone. 
+*/
 /**
  * @file EasyAI.h
  * @brief AI with random actions.
@@ -24,7 +28,8 @@ protected:
 public:
     EasyAI(const std::string& name, int health, int mana, GameState* gameState, UIManager* uiManager);
     virtual ~EasyAI() = default;
-
+    void performAttacks();
+    int chooseAttackTarget(size_t attackingUnitIndex) const;
     void takeTurn() override;
     bool hasPlayableCards() const override;
     };
