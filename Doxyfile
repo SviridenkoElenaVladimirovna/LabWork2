@@ -1,0 +1,6 @@
+PROJECT_NAME = "LabWork2"
+INPUT = Cards Core Systems UI Players Data
+RECURSIVE = YES
+EXCLUDE = cmake-build-debug test
+GENERATE_HTML = YES
+GENERATE_LATEX = NO
