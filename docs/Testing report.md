@@ -157,3 +157,47 @@ Testing the handling of non-standard scenarios (`EdgeCases`):
 - Actions with an empty deck
 - Healing at full health
 - Attempting to attack without available units
+
+---
+
+# Test Statistic
+
+Total Tests: 32 | Passed: 32 | Failed: 0
+
+Fixed Issues: Segmentation fault in EasyAI card handling
+
+
+### Test Categories 
+
+1. Core Card Tests (8)
+
+    - Basic Properties (3)
+    - Spell Effects (5)
+
+2. Player Tests (6)
+
+    - Combat (3)
+    - Card Play (3)
+
+3. AI Tests (12)
+
+    - EasyAI (4)
+    - MediumAI (4)
+    - HardAI (4)
+
+4. System Tests (6)
+
+    - Integration (4)
+    - Edge Cases (2)
+
+### Fix Details 
+
+* Location: EasyAI::playSelectedCard()
+* Problem: Null pointer access
+* Solution: Added:
+
+    1. Card null checks
+    2. Index validation
+    3. Safe type conversion
+
+* Verification: 20+ test runs
